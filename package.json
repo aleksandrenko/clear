@@ -1,11 +1,13 @@
 {
-  "name": "clear",
+  "name": "test",
   "private": true,
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
   },
   "dependencies": {
     "@fluentui/react": "^8.55.2",
@@ -13,9 +15,18 @@
     "react-dom": "^17.0.2"
   },
   "devDependencies": {
+    "@babel/core": "^7.17.4",
+    "@storybook/addon-actions": "^6.5.0-alpha.39",
+    "@storybook/addon-essentials": "^6.5.0-alpha.39",
+    "@storybook/addon-interactions": "^6.5.0-alpha.39",
+    "@storybook/addon-links": "^6.5.0-alpha.39",
+    "@storybook/react": "^6.5.0-alpha.39",
+    "@storybook/testing-library": "^0.0.9",
     "@types/react": "^17.0.33",
     "@types/react-dom": "^17.0.10",
     "@vitejs/plugin-react": "^1.0.7",
+    "babel-loader": "^8.2.3",
+    "storybook-builder-vite": "^0.1.15",
     "typescript": "^4.5.4",
     "vite": "^2.8.0"
   }
