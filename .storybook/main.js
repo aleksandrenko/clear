@@ -7,6 +7,7 @@ module.exports = {
     // "@storybook/addon-links",
     "@storybook/addon-essentials",
     // "@storybook/addon-interactions"
+    "@fluentui/storybook"
   ],
   "framework": "@storybook/react",
   "core": {
