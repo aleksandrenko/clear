@@ -5,20 +5,29 @@ import App from "./pages/App/App";
 import Apps from "./pages/Apps/Apps";
 import Assets from "./pages/Assets/Assets";
 import Data from "./pages/Data/Data";
+import Home from "./pages/Home/Home";
+import Pages from "./pages/Pages/Pages";
+
+export const ROUTES = {
+    HOME: '/',
+    APPS: 'apps',
+    ASSETS: 'assets',
+    DATA: 'data'
+};
 
 function Router() {
 
   return (
       <BrowserRouter basename="/">
         <Routes>
-          <Route path="/" element={<h1>Home</h1>} />
-          <Route path="apps">
+          <Route path={ROUTES.HOME} element={<Home />} />
+          <Route path={ROUTES.APPS}>
             <Route path="" element={<Apps />} />
 
-            <Route path=":pageId">
-              <Route path="" element={<App />} />
-              <Route path="assets" element={<Assets />} />
-              <Route path="data" element={<Data />} />
+            <Route path=":pageId" element={<App />}>
+              <Route path="" element={<Pages />} />
+              <Route path={ROUTES.ASSETS} element={<Assets />} />
+              <Route path={ROUTES.DATA} element={<Data />} />
             </Route>
           </Route>
         </Routes>

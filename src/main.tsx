@@ -1,11 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
 import Router from './Router';
+import ErrorBoundary from "./components/ErrorBoundry/ErrorBoundly";
 
-ReactDOM.render(
-  <React.StrictMode>
-    <Router />
-  </React.StrictMode>,
-  document.getElementById('root')
-)
+const domAppElement = document.getElementById('root');
+
+const AppWrapped = () => {
+    return (
+        <React.StrictMode>
+            <ErrorBoundary>
+                <Router />
+            </ErrorBoundary>
+        </React.StrictMode>
+    )
+}
+
+ReactDOM.render(<AppWrapped />, domAppElement);
