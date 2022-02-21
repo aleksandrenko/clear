@@ -1,16 +1,11 @@
 import React, {useState} from 'react';
 import {Link, Outlet} from "react-router-dom";
-
-const TEST_APPS = [
-    {
-        uuid: '3243t3he',
-        name: 'alx'
-    }
-];
+import {useAtom} from "jotai";
+import {appsAtom} from "../../state/apps";
 
 
 const Apps = () => {
-    const [apps, setApps] = useState(TEST_APPS);
+    const [apps, setApps] = useAtom(appsAtom);
 
     return (
         <div>
