@@ -1,0 +1,88 @@
+:root {
+    --space-middle: 15px;
+
+    --fontFamilyBase: 'Segoe UI', 'Segoe UI Web (West European)', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
+}
+
+body {
+    font-family: var(--fontFamilyBase);
+}
+
+.page {
+    flex: 1;
+    display: grid;
+    grid-template:
+        "bar       bar          bar              "
+        "tools     preview      properties       "
+        "actions   actions      actions          ";
+    grid-template-rows: auto 1fr auto;
+    grid-template-columns: auto 1fr auto;
+    justify-items: stretch;
+}
+
+.page-bar {
+    grid-area: bar;
+    height: 42px;
+    padding: 0 var(--space-middle);
+
+    background-color: #333;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.page-tools {
+    grid-area: tools;
+    width: 200px;
+
+    background-color: #fafafa;
+}
+
+.page-preview {
+    grid-area: preview;
+    column-width: 1fr;
+
+    background: #eee;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.page-preview--tools {
+    padding: var(--space-middle);
+    height: 50px;
+    display: flex;
+    justify-content: space-between;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+
+    font-size: 90%;
+}
+
+.page-preview--page {
+    display: block;
+    background: #fff;
+    min-width: 420px;
+    min-height: 320px;
+    box-shadow: 0 2px 3px rgba(0, 0, 0, .2);
+
+    zoom: 0.8
+}
+
+.page-properties {
+    grid-area: properties;
+    width: 250px;
+    background-color: #fafafa;
+
+}
+
+.page-actions {
+    grid-area: actions;
+    background: #333;
+    height: 250px;
+    color: #eee;
+}
