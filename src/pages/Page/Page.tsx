@@ -1,16 +1,18 @@
 import React from 'react';
-import {Link, useParams, Outlet, NavLink} from "react-router-dom";
+import {useParams} from "react-router-dom";
 
-const App = () => {
+
+const Page = () => {
     let params = useParams();
 
     return (
         <div>
             <div style={{background: 'gray', padding: 10, color: '#fff'}}>
-               app {params.appId}
+                page
+                <h1>Page: {params.pageId}</h1>
             </div>
         </div>
     )
 }
 
-export default App;
+export default Page;

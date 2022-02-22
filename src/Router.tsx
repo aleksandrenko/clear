@@ -7,10 +7,13 @@ import Assets from "./pages/Assets/Assets";
 import Data from "./pages/Data/Data";
 import Home from "./pages/Home/Home";
 import Pages from "./pages/Pages/Pages";
+import Page from "./pages/Page/Page";
+import AppWrapper from "./pages/AppWrapper/AppWrapper";
 
 export const ROUTES = {
     HOME: '/',
     APPS: 'apps',
+    PAGES: 'pages',
     ASSETS: 'assets',
     DATA: 'data'
 };
@@ -24,8 +27,12 @@ function Router() {
           <Route path={ROUTES.APPS}>
             <Route path="" element={<Apps />} />
 
-            <Route path=":pageId" element={<App />}>
-              <Route path="" element={<Pages />} />
+            <Route path=":appId" element={<AppWrapper />}>
+                <Route path="" element={<App />} />
+                <Route path="pages">
+                    <Route path="" element={<Pages />} />
+                    <Route path=":pageId" element={<Page />} />
+                </Route>
               <Route path={ROUTES.ASSETS} element={<Assets />} />
               <Route path={ROUTES.DATA} element={<Data />} />
             </Route>

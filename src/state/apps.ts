@@ -13,3 +13,12 @@ const TEST_APPS = [
 ];
 
 export const appsAtom = atom<IApp[]>(TEST_APPS);
+
+const appsAtoms = {
+    count: {},
+    get: atom([]),
+    del: {},
+    add: {},
+    update: {}
+}
+
