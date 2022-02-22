@@ -3,22 +3,34 @@ import { atom } from 'jotai';
 type IApp = {
     uuid: string
     name: string
+    pages: any[]
 }
 
-const TEST_APPS = [
+const TEST_APPS: IApp[] = [
     {
-        uuid: '3243t3he',
-        name: 'alx'
+        uuid: 'alx',
+        name: 'alx', //TODO: use only one. Choose
+        pages: [
+            {
+                uuid: '32564u5g',
+                slug: 'dashboard',
+            },
+            {
+                uuid: '32tgerher',
+                slug: 'user',
+            }
+        ],
     }
 ];
 
-export const appsAtom = atom<IApp[]>(TEST_APPS);
+export const appsAtom = atom(TEST_APPS);
 
-const appsAtoms = {
-    count: {},
-    get: atom([]),
-    del: {},
-    add: {},
-    update: {}
+export const getPagesAtom = (pageId: string | undefined) => {
+    return atom(
+        (get) => {
+            const app = get(appsAtom).find(app => app.uuid == pageId);
+            return app?.pages || [];
+        },
+        (get, set, value) => {}
+    );
 }
-

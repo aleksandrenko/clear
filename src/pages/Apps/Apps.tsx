@@ -15,7 +15,7 @@ const Apps = () => {
                     { apps.map((app) => {
                         return (
                             <li key={app.uuid}>
-                                <Link to={`${app.name}`}>{app.name}</Link>
+                                <Link to={`${app.uuid}`}>{app.uuid}</Link>
                             </li>
                         )
                     }) }
