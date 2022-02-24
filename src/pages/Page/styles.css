@@ -34,7 +34,7 @@ body {
 
 .page-tools {
     grid-area: tools;
-    width: 200px;
+    width: 300px;
 
     background-color: #fafafa;
 }
@@ -85,4 +85,62 @@ body {
     background: #333;
     height: 250px;
     color: #eee;
+}
+
+
+.nav-element {
+    padding: 3px 5px;
+    font-size: 90%;
+}
+
+.nav-element button {
+    border: none;
+    padding: 5px;
+    margin: 0 1px;
+    cursor: pointer;
+}
+
+.nav-element--children {
+    padding-left: 10px;
+}
+
+.modal-select-component {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 430px;
+    max-height: 400px;
+    background: #fff;
+    padding: 20px;
+    transform: translate(-50%, -50%);
+}
+
+.modal-select-component h4 {
+    margin: 0;
+    display: block;
+    background: #333;
+    padding: 5px 10px;
+    color: #fff;
+}
+
+.modal-select-component strong {
+    margin: 10px 0;
+    display: block;
+}
+
+.modal-select-component-wrapper {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.lib-components {
+    padding-left: 10px;
+}
+
+.lib-component {
+    padding: 5px 0;
 }

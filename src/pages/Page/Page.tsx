@@ -1,7 +1,8 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {useParams} from "react-router-dom";
 
 import './styles.css';
+import LibComponentsSelectModal from "./components/LibComponentsSelectModal";
 
 
 const HTML_COMPONENTS = [
@@ -20,22 +21,6 @@ const HTML_COMPONENTS = [
         descriptions: 'component description user entered',
         childrenRestrictions: {},
         actions: {},
-    },
-    {
-        name: 'Image',
-        render: (props: any) => <img {...props}>{ props?.children || null }</img>,
-        props: {},
-        descriptions: 'component description user entered',
-        childrenRestrictions: {},
-        actions: {},
-    },
-    {
-        name: 'Input',
-        render: (props: any) => <input {...props}>{ props?.children || null }</input>,
-        props: {},
-        descriptions: 'component description user entered',
-        childrenRestrictions: {},
-        actions: {},
     }
 ];
 
@@ -43,6 +28,14 @@ const LIBRARIES = [
     {
         name: "HTML Components",
         components: HTML_COMPONENTS
+    },
+    {
+        name: "MUI",
+        components: []
+    },
+    {
+        name: "FluentUI",
+        components: []
     }
 ];
 
@@ -66,8 +59,14 @@ const PAGE_COMPONENTS = [
     }
 ];
 
+const addAChild = (componentDefinition: any) => {
+
+}
+
 const Page = () => {
     let params = useParams();
+    const [isSelectModalVisible, setIsSelectModalVisible] = useState(false);
+    const [pageComponents, setPageComponents] = useState(PAGE_COMPONENTS);
 
     const renderPage = (componentsDefinition: any[]) => {
         const renderComponents = (componentsDefinition: any[]): any[] => {
@@ -91,6 +90,30 @@ const Page = () => {
         return Page;
     }
 
+    const renderComponentsNav = (componentsDefinitions: any[]): any => {
+        return componentsDefinitions.map((componentDefinition, index) => {
+            return (
+                <div className="nav-element">
+                    <button
+                        onClick={() => setIsSelectModalVisible(true)}
+                    >+</button>
+
+                    {componentDefinition.name} ({componentDefinition.component}) <button>-</button>
+                    <button
+                        onClick={() => setIsSelectModalVisible(true)}
+                    >+</button>
+
+                    <div className="nav-element--children">
+                        { componentDefinition.children
+                            ? renderComponentsNav(componentDefinition.children)
+                            : <button>+ children</button>
+                        }
+                    </div>
+                </div>
+            );
+        })
+    };
+
     return (
     <div className="page">
         <div className="page-tools">
@@ -98,36 +121,7 @@ const Page = () => {
             Tree / Libs / Data
             <input placeholder="search" />
 
-            <h4>// Tree //</h4>
-
-            {
-                PAGE_COMPONENTS.map((component) => {
-                    return (
-                        <div>{component.name} ({component.component})</div>
-                    );
-                })
-            }
-
-            <hr />
-
-            <h4>// Libs //</h4>
-            {
-                LIBRARIES.map((lib) => {
-                   return (
-                       <div>
-                           <strong>{lib.name}</strong>
-                            <div>
-                                {lib.components.map((component) => {
-                                    return (
-                                        <div>{ component.name }</div>
-                                    )
-                                })}
-                            </div>
-                       </div>
-                   )
-                })
-            }
-
+            { renderComponentsNav(pageComponents) }
         </div>
 
         <div className="page-preview">
@@ -138,7 +132,7 @@ const Page = () => {
 
             <div className="page-preview--page-space">
                 <div className="page-preview--page">
-                    { renderPage(PAGE_COMPONENTS) }
+                    { renderPage(pageComponents) }
                 </div>
             </div>
         </div>
@@ -151,6 +145,28 @@ const Page = () => {
             Actions module goes here
             To define the user interactions with the ui
         </div>
+
+        <LibComponentsSelectModal
+            libComponents={LIBRARIES}
+            visible={isSelectModalVisible}
+            onSelect={(libComponent: any) => {
+                setIsSelectModalVisible(false);
+
+                const newPageComponent = {
+                    uuid: Date.now(),
+                    name: 'Container_' + Date.now(),
+                    component: libComponent.name,
+                    props: {},
+                    actions: {},
+                    children: []
+                }
+
+                setPageComponents([
+                    newPageComponent,
+                    ...pageComponents
+                ]);
+            }}
+        />
     </div>
     )
 }
