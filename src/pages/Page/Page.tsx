@@ -48,27 +48,48 @@ const LIBRARIES = [
 
 const PAGE_COMPONENTS = [
     {
-        uuid: 'UUIDForTheElement',
+        uuid: '2tges',
         name: 'Container_1',
-        component: 'div', //TODO: link them by id or something
+        component: 'div',
         props: {},
         actions: {},
         children: [
-            'uuidSpan'
-        ],
-    },
-    {
-        uuid: 'uuidSpan',
-        name: 'Container_2',
-        component: 'span',
-        props: {},
-        actions: {},
-        children: [],
+            {
+                uuid: '432t2g',
+                name: 'Container_2',
+                component: 'span',
+                props: {},
+                actions: {},
+                children: []
+            }
+        ]
     }
-]
+];
 
 const Page = () => {
     let params = useParams();
+
+    const renderPage = (componentsDefinition: any[]) => {
+        const renderComponents = (componentsDefinition: any[]): any[] => {
+            const components = componentsDefinition.map((componentDefinition) => {
+                const component = HTML_COMPONENTS.find((libComponent) => libComponent.name === componentDefinition.component);
+                if (!component) { return null; }
+
+                const children = renderComponents(componentDefinition.children);
+                return component.render({ children });
+            });
+
+            return components;
+        }
+
+        const Page = (
+            <React.Fragment>
+                { renderComponents(componentsDefinition) }
+            </React.Fragment>
+        );
+
+        return Page;
+    }
 
     return (
     <div className="page">
@@ -117,7 +138,7 @@ const Page = () => {
 
             <div className="page-preview--page-space">
                 <div className="page-preview--page">
-                    the page is rendered here
+                    { renderPage(PAGE_COMPONENTS) }
                 </div>
             </div>
         </div>
