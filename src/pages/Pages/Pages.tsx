@@ -21,8 +21,6 @@ const Pages = () => {
             slug: newPageName
         }
 
-        console.log(newPage);
-
         const modifiedApps = apps.map((app) => {
             if (app.uuid === params.appId) {
                 app.pages.push(newPage);

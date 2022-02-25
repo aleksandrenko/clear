@@ -2,18 +2,18 @@ import React, {useState} from "react";
 
 interface IProps {
     libComponents: any
-    visible: any
+    addFunction: any
     onSelect: any
 };
 
 const LibComponentsSelectModal = (props: IProps) => {
     const {
         libComponents,
-        visible,
+        addFunction,
         onSelect
     } = props;
 
-    if (!visible) {
+    if (!addFunction) {
         return null;
     }
 

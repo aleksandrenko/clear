@@ -59,13 +59,9 @@ const PAGE_COMPONENTS = [
     }
 ];
 
-const addAChild = (componentDefinition: any) => {
-
-}
-
 const Page = () => {
     let params = useParams();
-    const [isSelectModalVisible, setIsSelectModalVisible] = useState(false);
+    const [componentAddFunction, setComponentAddFunction] = useState(null);
     const [pageComponents, setPageComponents] = useState(PAGE_COMPONENTS);
 
     const renderPage = (componentsDefinition: any[]) => {
@@ -90,18 +86,61 @@ const Page = () => {
         return Page;
     }
 
+    const addChildBefore = (parentComponentDefinition: any) => (libComponent: any) => {
+        const targetIndex = PAGE_COMPONENTS.findIndex((component, index) => component.uuid === parentComponentDefinition.uuid);
+
+        const newPageComponent = {
+            component: libComponent.name,
+            uuid: Date.now(),
+            name: 'Container_' + Date.now(),
+            props: {},
+            actions: {},
+            children: []
+        }
+
+        if (targetIndex > -1) {
+            PAGE_COMPONENTS.splice(targetIndex, 0, newPageComponent);
+        }
+
+        // setPageComponents(newPageComponents);
+    }
+
+    const addChildAfter = (parentComponentDefinition: any) => (libComponent: any) => {
+        const targetIndex = PAGE_COMPONENTS.findIndex((component, index) => component.uuid === parentComponentDefinition.uuid);
+
+        const newPageComponent = {
+            component: libComponent.name,
+            uuid: Date.now(),
+            name: 'Container_' + Date.now(),
+            props: {},
+            actions: {},
+            children: []
+        }
+
+        if (targetIndex > -1) {
+            PAGE_COMPONENTS.splice(targetIndex+1, 0, newPageComponent);
+        }
+
+    }
+
     const renderComponentsNav = (componentsDefinitions: any[]): any => {
-        return componentsDefinitions.map((componentDefinition, index) => {
+        return componentsDefinitions.map((componentDefinition) => {
+
             return (
                 <div className="nav-element">
-                    <button
-                        onClick={() => setIsSelectModalVisible(true)}
-                    >+</button>
+                    <button onClick={() => {
+                        setComponentAddFunction((prev: any) => addChildBefore(componentDefinition)); }}
+                    >
+                        +
+                    </button>
 
                     {componentDefinition.name} ({componentDefinition.component}) <button>-</button>
                     <button
-                        onClick={() => setIsSelectModalVisible(true)}
-                    >+</button>
+                        onClick={() => {
+                        setComponentAddFunction((prev: any) => addChildAfter(componentDefinition)); }}
+                    >
+                        +
+                    </button>
 
                     <div className="nav-element--children">
                         { componentDefinition.children
@@ -148,23 +187,11 @@ const Page = () => {
 
         <LibComponentsSelectModal
             libComponents={LIBRARIES}
-            visible={isSelectModalVisible}
+            addFunction={componentAddFunction}
             onSelect={(libComponent: any) => {
-                setIsSelectModalVisible(false);
+                setComponentAddFunction(null);
 
-                const newPageComponent = {
-                    uuid: Date.now(),
-                    name: 'Container_' + Date.now(),
-                    component: libComponent.name,
-                    props: {},
-                    actions: {},
-                    children: []
-                }
-
-                setPageComponents([
-                    newPageComponent,
-                    ...pageComponents
-                ]);
+                componentAddFunction(libComponent);
             }}
         />
     </div>
