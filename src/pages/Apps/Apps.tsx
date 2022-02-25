@@ -1,11 +1,24 @@
 import React, {useState} from 'react';
-import {Link, Outlet} from "react-router-dom";
+import {Link, Outlet, useParams} from "react-router-dom";
 import {useAtom} from "jotai";
 import {appsAtom} from "../../state/apps";
 
 
 const Apps = () => {
-    const [apps, setApps] = useAtom(appsAtom);
+    const params = useParams();
+
+    const [apps, setApps] = useAtom<any[]>(appsAtom);
+    const [appName, setAppName] = useState<string | null>(null);
+
+    const createApp = () => {
+        const newApp = {
+            uuid: appName,
+            name: appName
+        }
+
+        setApps([...apps, newApp]);
+        setAppName(null);
+    }
 
     return (
         <div>
@@ -24,8 +37,8 @@ const Apps = () => {
             </div>
             <div>
                 <h2>Create</h2>
-                <label><span>Name: </span><input type="text"/></label>
-                <button>Create</button>
+                <label><span>Name: </span><input value={appName} onChange={(e) => setAppName(e.target.value)} type="text"/></label>
+                <button onClick={ () => createApp() }>Create</button>
             </div>
         </div>
     )

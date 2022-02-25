@@ -1,4 +1,5 @@
 import { atom } from 'jotai';
+import {useMemo} from "react";
 
 type IApp = {
     uuid: string
@@ -26,11 +27,15 @@ const TEST_APPS: IApp[] = [
 export const appsAtom = atom(TEST_APPS);
 
 export const getPagesAtom = (pageId: string | undefined) => {
-    return atom(
-        (get) => {
-            const app = get(appsAtom).find(app => app.uuid == pageId);
-            return app?.pages || [];
-        },
-        (get, set, value) => {}
-    );
+    const pageAtom = useMemo(() => {
+        return atom(
+            (get) => {
+                const app = get(appsAtom).find(app => app.uuid == pageId);
+                return app?.pages || [];
+            },
+            (get, set, value) => {}
+        );
+    }, [pageId]);
+
+    return pageAtom;
 }
