@@ -3,6 +3,15 @@ import {useParams} from "react-router-dom";
 
 import './styles.css';
 import LibComponentsSelectModal from "./components/LibComponentsSelectModal";
+import {Breadcrumb, IBreadcrumbItem, initializeIcons, Pivot, PivotItem, SearchBox, Stack} from "@fluentui/react"
+
+initializeIcons();
+
+const breadcrumbItem: IBreadcrumbItem[] = [
+    { text: 'Alx', key: 'project', onClick: () => console.log('path1') },
+    { text: 'Pages', key: 'pages', onClick: () => console.log('path2') },
+    { text: 'Dashboard', key: 'page', onClick: () => console.log('path3') }
+];
 
 
 const HTML_COMPONENTS = [
@@ -157,15 +166,37 @@ const Page = () => {
     <div className="page">
         <div className="page-tools">
 
-            Tree / Libs / Data
-            <input placeholder="search" />
+            <Pivot aria-label="Basic Pivot Example">
+                <PivotItem headerText="Tree">
+                    <Stack tokens={{padding: 10}}>
+                        <Stack.Item>
+                            <SearchBox
+                                placeholder="Search"
+                                onSearch={newValue => console.log('value is ' + newValue)}
+                            />
+                        </Stack.Item>
 
-            { renderComponentsNav(pageComponents) }
+                        <Stack.Item>
+                            { renderComponentsNav(pageComponents) }
+                        </Stack.Item>
+                    </Stack>
+                </PivotItem>
+                <PivotItem headerText="Libs">
+                    <div>lib components here</div>
+                </PivotItem>
+                <PivotItem headerText="Data">
+                    <div>data goes here</div>
+                </PivotItem>
+            </Pivot>
         </div>
 
         <div className="page-preview">
             <div className="page-preview--tools">
-                <div>alex (project) - dashboard (page)</div>
+                <div><Breadcrumb
+                        items={breadcrumbItem}
+                        maxDisplayedItems={10}
+                    />
+                </div>
                 <div>screensize: 1200/800 | zoom: 80%</div>
             </div>
 
