@@ -1,5 +1,6 @@
 :root {
     --space-middle: 15px;
+    --space-small: 10px;
 
     --fontFamilyBase: 'Segoe UI', 'Segoe UI Web (West European)', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
 }

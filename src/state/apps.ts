@@ -19,6 +19,22 @@ const TEST_APPS: IApp[] = [
             {
                 uuid: '32tgerher',
                 slug: 'user',
+            },
+            {
+                uuid: '326y43he',
+                slug: 'profile',
+            },
+            {
+                uuid: 'nre03046',
+                slug: 'products',
+            },
+            {
+                uuid: '2364yuhe',
+                slug: 'product',
+            },
+            {
+                uuid: '634yegrh',
+                slug: 'about',
             }
         ],
     }

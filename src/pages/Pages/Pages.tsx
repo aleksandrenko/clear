@@ -1,7 +1,16 @@
-import React, {useEffect, useState} from 'react';
-import {Link, useParams} from "react-router-dom";
+import React, {useState} from 'react';
+import {useNavigate, useParams} from "react-router-dom";
 import {useAtom} from "jotai";
 import {appsAtom, getPagesAtom} from "../../state/apps";
+import {
+    DocumentCard,
+    DocumentCardDetails,
+    DocumentCardPreview,
+    DocumentCardTitle,
+    DocumentCardType
+} from "@fluentui/react";
+
+import './styles.css';
 
 const Pages = () => {
     let params = useParams();
@@ -15,7 +24,6 @@ const Pages = () => {
     }
 
     const createNewPage = () => {
-        console.log('crate new page');
         const newPage = {
             uuid: Date.now(),
             slug: newPageName
@@ -32,18 +40,31 @@ const Pages = () => {
         setApps(modifiedApps);
     }
 
+    const navigate = useNavigate();
+
     return (
-        <div>
+        <div className="pages-wrapper">
             <h1>Pages</h1>
-            <ul>
-                {
-                    pages.map((page => {
-                        return <li key={page.slug}>
-                            <Link to={page.slug}>{page.slug}</Link>
-                        </li>
-                    }))
-                }
-            </ul>
+
+            <div className="pages-grid">
+            {
+                pages.map(((page, index) => {
+                    return (
+                        <DocumentCard
+                            key={index}
+                            type={DocumentCardType.compact}
+                            onClick={() => navigate(page.slug)}
+                        >
+                            <DocumentCardPreview previewImages={[]} />
+                            <DocumentCardDetails>
+                                <DocumentCardTitle title={page.slug} shouldTruncate />
+                            </DocumentCardDetails>
+                        </DocumentCard>
+                    )
+                }))
+            }
+            </div>
+
             <div>
                 <input value={newPageName} onChange={onNewNameSet} />
                 <button onClick={() => createNewPage()}>Create new Page</button>

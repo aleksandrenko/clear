@@ -110,8 +110,6 @@ const Page = () => {
         if (targetIndex > -1) {
             PAGE_COMPONENTS.splice(targetIndex, 0, newPageComponent);
         }
-
-        // setPageComponents(newPageComponents);
     }
 
     const addChildAfter = (parentComponentDefinition: any) => (libComponent: any) => {

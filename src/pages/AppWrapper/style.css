@@ -7,3 +7,23 @@
     display: flex;
     flex-direction: column;
 }
+
+.app-header {
+    display: flex;
+    align-items: center;
+    padding: 0 var(--space-small);
+}
+
+.app-header-spacer {
+    flex: 1;,
+}
+
+.app-header__nav {
+    flex: 1;
+}
+
+.app-page-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}

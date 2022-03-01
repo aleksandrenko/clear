@@ -1,0 +1,15 @@
+.pages-wrapper {
+    padding: var(--space-small);
+}
+
+.pages-grid {
+    display: grid;
+    gap: var(--space-small);
+
+    grid-template-columns: repeat(auto-fit, 240px);
+}
+
+.pages-grid > .ms-DocumentCard {
+    width: auto;
+    height: 240px;
+}
