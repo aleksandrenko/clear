@@ -8,6 +8,15 @@
     flex-direction: column;
 }
 
+.clr-logo {
+    font-weight: bold;
+    color: rgb(0, 120, 212);
+    border-left: solid 3px rgb(0, 120, 212);
+    padding: 0;
+    line-height: 0.8;
+    padding-left: 5px;
+}
+
 .app-header {
     display: flex;
     align-items: center;

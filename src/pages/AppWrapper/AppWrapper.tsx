@@ -4,37 +4,19 @@ import {ROUTES} from "../../Router";
 
 import './style.css';
 import {
-    CommandBar, GroupSpacer, IContextualMenuItem, Persona,
-    Pivot,
-    PivotItem, Separator, TextField
+    CommandBar, Text, Persona, Separator
 } from "@fluentui/react";
 
 const AppWrapper = () => {
     let params = useParams();
     let navigate = useNavigate();
 
-    const menuItems: IContextualMenuItem[] = [
-        {
-            key: 'Save',
-            text: 'Save',
-            onClick: () => console.log('Save clicked'),
-        },
-        {
-            key: 'Load',
-            text: 'Load',
-            onClick: () => console.log('Load clicked'),
-        },
-        {
-            key: 'Delete',
-            text: 'Delete',
-            onClick: () => console.log('Delete'),
-        }
-    ];
-
     return (
         <div className="app">
             <div className="app-header">
-                <Link to={`/${ROUTES.APPS}`}>Clear</Link>
+                <Text variant="medium" className="clr-logo" onClick={() => { navigate(`/${ROUTES.APPS}`) }}>Clear</Text>
+
+                &nbsp;&nbsp;&nbsp;<Separator vertical />
 
                 <CommandBar
                     className="app-header__nav"

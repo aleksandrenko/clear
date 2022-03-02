@@ -52,14 +52,13 @@ body {
 }
 
 .page-preview--tools {
-    padding: var(--space-middle);
-    height: 50px;
     display: flex;
     justify-content: space-between;
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
+    align-items: center;
 
     font-size: 90%;
 }
@@ -144,4 +143,12 @@ body {
 
 .lib-component {
     padding: 5px 0;
+}
+
+.page-breadcrumb {
+    margin: 0;
+}
+
+.page-breadcrumb .ms-Link {
+    font-size: 14px;
 }

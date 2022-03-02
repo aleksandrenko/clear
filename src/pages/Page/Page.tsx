@@ -3,7 +3,18 @@ import {useParams} from "react-router-dom";
 
 import './styles.css';
 import LibComponentsSelectModal from "./components/LibComponentsSelectModal";
-import {Breadcrumb, IBreadcrumbItem, initializeIcons, Pivot, PivotItem, SearchBox, Stack} from "@fluentui/react"
+import {
+    Breadcrumb,
+    Button,
+    Checkbox,
+    IBreadcrumbItem,
+    Icon,
+    initializeIcons,
+    Pivot,
+    PivotItem,
+    SearchBox,
+    Stack, TextField, Toggle, Text
+} from "@fluentui/react"
 
 initializeIcons();
 
@@ -44,7 +55,64 @@ const LIBRARIES = [
     },
     {
         name: "FluentUI",
-        components: []
+        components: [
+            {
+                name: 'Button',
+                render: (props: any) => <Button {...props}>{ props?.children || null }</Button>,
+                props: {},
+                descriptions: '',
+                childrenRestrictions: {},
+                actions: {},
+            },
+            {
+                name: 'Checkbox',
+                render: (props: any) => <Checkbox {...props}>{ props?.children || null }</Checkbox>,
+                props: {},
+                descriptions: '',
+                childrenRestrictions: {},
+                actions: {},
+            },
+            {
+                name: 'SearchBox',
+                render: (props: any) => <SearchBox {...props}>{ props?.children || null }</SearchBox>,
+                props: {},
+                descriptions: '',
+                childrenRestrictions: {},
+                actions: {},
+            },
+            {
+                name: 'TextField',
+                render: (props: any) => <TextField {...props}>{ props?.children || null }</TextField>,
+                props: {},
+                descriptions: '',
+                childrenRestrictions: {},
+                actions: {},
+            },
+            {
+                name: 'Toggle',
+                render: (props: any) => <Toggle {...props}>{ props?.children || null }</Toggle>,
+                props: {},
+                descriptions: '',
+                childrenRestrictions: {},
+                actions: {},
+            },
+            {
+                name: 'Icon',
+                render: (props: any) => <Icon {...props}>{ props?.children || null }</Icon>,
+                props: {},
+                descriptions: '',
+                childrenRestrictions: {},
+                actions: {},
+            },
+            {
+                name: 'Text',
+                render: (props: any) => <Text {...props}>{ props?.children || null }</Text>,
+                props: {},
+                descriptions: '',
+                childrenRestrictions: {},
+                actions: {},
+            }
+        ]
     }
 ];
 
@@ -190,7 +258,9 @@ const Page = () => {
 
         <div className="page-preview">
             <div className="page-preview--tools">
-                <div><Breadcrumb
+                <div>
+                    <Breadcrumb
+                        className="page-breadcrumb"
                         items={breadcrumbItem}
                         maxDisplayedItems={10}
                     />

@@ -2,6 +2,8 @@ import React, {useState} from 'react';
 import {Link, Outlet, useParams} from "react-router-dom";
 import {useAtom} from "jotai";
 import {appsAtom} from "../../state/apps";
+import { Text } from "@fluentui/react"
+
 
 
 const Apps = () => {
@@ -22,7 +24,7 @@ const Apps = () => {
 
     return (
         <div>
-            <h1>Apps</h1>
+            <Text variant="xxLarge" nowrap>Clear Applications</Text>
             <div>
                 <ul>
                     { apps.map((app) => {
@@ -36,7 +38,8 @@ const Apps = () => {
 
             </div>
             <div>
-                <h2>Create</h2>
+                <Text variant="large" nowrap block>Create:</Text>
+
                 <label><span>Name: </span><input value={appName} onChange={(e) => setAppName(e.target.value)} type="text"/></label>
                 <button onClick={ () => createApp() }>Create</button>
             </div>
