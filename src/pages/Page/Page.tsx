@@ -138,7 +138,7 @@ const PAGE_COMPONENTS = [
 
 const Page = () => {
     let params = useParams();
-    const [componentAddFunction, setComponentAddFunction] = useState(null);
+    const [componentAddFunction, setComponentAddFunction] = useState<any>(null);
     const [pageComponents, setPageComponents] = useState(PAGE_COMPONENTS);
 
     const renderPage = (componentsDefinition: any[]) => {
@@ -163,64 +163,145 @@ const Page = () => {
         return Page;
     }
 
-    const addChildBefore = (parentComponentDefinition: any) => (libComponent: any) => {
-        const targetIndex = PAGE_COMPONENTS.findIndex((component, index) => component.uuid === parentComponentDefinition.uuid);
+    const addChild = (parentComponentDefinition: any) => (libComponent: any) => {
+        const modifyTreeBranch = (components: any) => {
+            return components.map((component: any) => {
+                if (component.children.length) {
+                    modifyTreeBranch(component.children);
+                }
 
-        const newPageComponent = {
-            component: libComponent.name,
-            uuid: Date.now(),
-            name: 'Container_' + Date.now(),
-            props: {},
-            actions: {},
-            children: []
-        }
+                if (component.uuid === parentComponentDefinition.uuid) {
+                    const newPageComponent = {
+                        uuid: Date.now().toString(),
+                        name: Date.now().toString(),
+                        component: libComponent.name,
+                        props: {},
+                        actions: {},
+                        children: []
+                    }
 
-        if (targetIndex > -1) {
-            PAGE_COMPONENTS.splice(targetIndex, 0, newPageComponent);
-        }
+                    component.children.push(newPageComponent);
+                }
+
+                return component;
+            });
+        };
+
+        setPageComponents(modifyTreeBranch(pageComponents));
     }
 
-    const addChildAfter = (parentComponentDefinition: any) => (libComponent: any) => {
-        const targetIndex = PAGE_COMPONENTS.findIndex((component, index) => component.uuid === parentComponentDefinition.uuid);
+    const addElementBefore = (parentComponentDefinition: any) => (libComponent: any) => {
+        const modifyTreeBranch = (components: any) => {
+            return components.reduce((sum: any[], component: any) => {
+              if (component.uuid === parentComponentDefinition.uuid) {
+                    const newPageComponent = {
+                        uuid: Date.now().toString(),
+                        name: Date.now().toString(),
+                        component: libComponent.name,
+                        props: {},
+                        actions: {},
+                        children: []
+                    }
 
-        const newPageComponent = {
-            component: libComponent.name,
-            uuid: Date.now(),
-            name: 'Container_' + Date.now(),
-            props: {},
-            actions: {},
-            children: []
-        }
+                    // Add the new element before adding the already existing one.
+                    sum.push(newPageComponent);
+                }
+                sum.push(component);
 
-        if (targetIndex > -1) {
-            PAGE_COMPONENTS.splice(targetIndex+1, 0, newPageComponent);
-        }
+                console.log(component, parentComponentDefinition.uuid);
 
+                if (component.children.length) {
+                    component.children = modifyTreeBranch(component.children);
+                }
+
+                return sum;
+            }, []);
+        };
+
+        setPageComponents(modifyTreeBranch(pageComponents));
     }
 
-    const renderComponentsNav = (componentsDefinitions: any[]): any => {
+    //TODO: this is pretty much the same like addBefore. Think af a good way to combine them
+    const addElementAfter = (parentComponentDefinition: any) => (libComponent: any) => {
+        const modifyTreeBranch = (components: any) => {
+            return components.reduce((sum: any[], component: any) => {
+                sum.push(component);
+
+                if (component.uuid === parentComponentDefinition.uuid) {
+                    const newPageComponent = {
+                        uuid: Date.now().toString(),
+                        name: Date.now().toString(),
+                        component: libComponent.name,
+                        props: {},
+                        actions: {},
+                        children: []
+                    }
+
+                    // Add the new element after adding the already existing one.
+                    sum.push(newPageComponent);
+                }
+
+                console.log(component, parentComponentDefinition.uuid);
+
+                if (component.children.length) {
+                    component.children = modifyTreeBranch(component.children);
+                }
+
+                return sum;
+            }, []);
+        };
+
+        setPageComponents(modifyTreeBranch(pageComponents));
+    }
+
+    const deleteComponent = (componentDefinition: any) => {
+        const modifyTreeBranch = (components: any) => {
+            return components.reduce((sum: any[], component: any) => {
+               if (component.uuid !== componentDefinition.uuid) {
+                   if (component.children.length) {
+                       component.children = modifyTreeBranch(component.children);
+                   }
+
+                   sum.push(component);
+               }
+
+                return sum;
+            }, []);
+        };
+
+        setPageComponents(modifyTreeBranch(pageComponents));
+    }
+
+    const renderComponentsTreeNav = (componentsDefinitions: any[]): any => {
         return componentsDefinitions.map((componentDefinition) => {
 
             return (
                 <div className="nav-element">
-                    <button onClick={() => {
-                        setComponentAddFunction((prev: any) => addChildBefore(componentDefinition)); }}
-                    >
+                    <button onClick={() => { setComponentAddFunction((prev: any) => addElementBefore(componentDefinition)); }}>
                         +
                     </button>
 
-                    {componentDefinition.name} ({componentDefinition.component}) <button>-</button>
-                    <button
-                        onClick={() => {
-                        setComponentAddFunction((prev: any) => addChildAfter(componentDefinition)); }}
-                    >
+                    {componentDefinition.name} ({componentDefinition.component})
+                    <button onClick={() => deleteComponent(componentDefinition)} >
+                        -
+                    </button>
+
+                    <button onClick={() => { setComponentAddFunction((prev: any) => addElementAfter(componentDefinition)); }}>
                         +
                     </button>
 
                     <div className="nav-element--children">
-                        { componentDefinition.children
-                            ? renderComponentsNav(componentDefinition.children)
-                            : <button>+ children</button>
+                        { componentDefinition.children.length
+                            ? renderComponentsTreeNav(componentDefinition.children)
+                            : (
+                                <>
+                                    -
+                                    <button onClick={() => {
+                                        setComponentAddFunction((prev: any) => addChild(componentDefinition)); }}
+                                    >
+                                        + child
+                                    </button></>
+                            )
                         }
                     </div>
                 </div>
@@ -243,7 +324,7 @@ const Page = () => {
                         </Stack.Item>
 
                         <Stack.Item>
-                            { renderComponentsNav(pageComponents) }
+                            { renderComponentsTreeNav(pageComponents) }
                         </Stack.Item>
                     </Stack>
                 </PivotItem>
