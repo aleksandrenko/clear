@@ -82,7 +82,7 @@ const LIBRARIES = [
             },
             {
                 name: 'TextField',
-                render: (props: any) => <TextField {...props}>{ props?.children || null }</TextField>,
+                render: (props: any) => <TextField />,
                 props: {},
                 descriptions: '',
                 childrenRestrictions: {},
@@ -144,7 +144,14 @@ const Page = () => {
     const renderPage = (componentsDefinition: any[]) => {
         const renderComponents = (componentsDefinition: any[]): any[] => {
             const components = componentsDefinition.map((componentDefinition) => {
-                const component = HTML_COMPONENTS.find((libComponent) => libComponent.name === componentDefinition.component);
+                //TODO select them by lib - names can be overiding themselves
+                const AllLibComponents = LIBRARIES
+                    .map((lib) => lib.components)
+                    .reduce((sum, lib) => {
+                        sum = [...sum, ...lib];
+                        return sum;
+                    }, []);
+                const component = AllLibComponents.find((libComponent) => libComponent.name === componentDefinition.component);
                 if (!component) { return null; }
 
                 const children = renderComponents(componentDefinition.children);
