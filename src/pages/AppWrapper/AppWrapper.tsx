@@ -6,6 +6,7 @@ import './style.css';
 import {
     CommandBar, Text, Persona, Separator
 } from "@fluentui/react";
+import Types from "../../modules/Types/Types";
 
 const AppWrapper = () => {
     let params = useParams();
@@ -85,6 +86,15 @@ const AppWrapper = () => {
 
             <div className="app-page-wrapper">
                 <Outlet />
+            </div>
+
+            <div className="app-page--modules">
+                <div className="app-page--modules-overlay" />
+
+                <div className="app-page--modules-wrapper">
+                    <Types />
+                </div>
+
             </div>
         </div>
     )

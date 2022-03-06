@@ -36,3 +36,35 @@
     display: flex;
     flex-direction: column;
 }
+
+
+/* Overlay with modules */
+/* TODO: decide to leave them here or move them */
+
+.app-page--modules,
+.app-page--modules-overlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.app-page--modules-overlay {
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 100;
+}
+
+.app-page--modules-wrapper {
+    position:  absolute;
+    z-index: 110;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 60%;
+    min-height: 50%;
+    max-height: 90%;
+    max-width: 80%;
+
+    background: #fff;
+}

@@ -15,6 +15,8 @@ import {
     SearchBox,
     Stack, TextField, Toggle, Text
 } from "@fluentui/react"
+import {IButtonProps} from "@fluentui/react/lib/components/Button/Button.types";
+import ComponentProperties from "./components/ComponentProperties";
 
 initializeIcons();
 
@@ -50,63 +52,11 @@ const LIBRARIES = [
         components: HTML_COMPONENTS
     },
     {
-        name: "MUI",
-        components: []
-    },
-    {
         name: "FluentUI",
         components: [
             {
                 name: 'Button',
-                render: (props: any) => <Button {...props}>{ props?.children || null }</Button>,
-                props: {},
-                descriptions: '',
-                childrenRestrictions: {},
-                actions: {},
-            },
-            {
-                name: 'Checkbox',
-                render: (props: any) => <Checkbox {...props}>{ props?.children || null }</Checkbox>,
-                props: {},
-                descriptions: '',
-                childrenRestrictions: {},
-                actions: {},
-            },
-            {
-                name: 'SearchBox',
-                render: (props: any) => <SearchBox {...props}>{ props?.children || null }</SearchBox>,
-                props: {},
-                descriptions: '',
-                childrenRestrictions: {},
-                actions: {},
-            },
-            {
-                name: 'TextField',
-                render: (props: any) => <TextField />,
-                props: {},
-                descriptions: '',
-                childrenRestrictions: {},
-                actions: {},
-            },
-            {
-                name: 'Toggle',
-                render: (props: any) => <Toggle {...props}>{ props?.children || null }</Toggle>,
-                props: {},
-                descriptions: '',
-                childrenRestrictions: {},
-                actions: {},
-            },
-            {
-                name: 'Icon',
-                render: (props: any) => <Icon {...props}>{ props?.children || null }</Icon>,
-                props: {},
-                descriptions: '',
-                childrenRestrictions: {},
-                actions: {},
-            },
-            {
-                name: 'Text',
-                render: (props: any) => <Text {...props}>{ props?.children || null }</Text>,
+                render: (props: IButtonProps) => <Button {...props}>{ props?.children || null }</Button>,
                 props: {},
                 descriptions: '',
                 childrenRestrictions: {},
@@ -364,7 +314,7 @@ const Page = () => {
         </div>
 
         <div className="page-properties">
-            selected component/data process goes here
+            <ComponentProperties />
         </div>
 
         <div className="page-actions">
