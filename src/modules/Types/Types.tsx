@@ -7,7 +7,7 @@ import {
     Stack,
     Text,
     SpinButton,
-    Position, Checkbox, Label, Button, PrimaryButton
+    Position, Checkbox, Button, PrimaryButton, IconButton
 } from "@fluentui/react";
 import uuid from "../../utils/uuid";
 
@@ -18,7 +18,6 @@ const PRIMITIVES_TYPES = {
     string: 'string',
     number: 'number',
     boolean: 'boolean',
-    null: 'null'
 }
 
 const PRIMITIVES = [
@@ -65,12 +64,13 @@ const PRIMITIVES = [
         name: 'Boolean',
         options: {}
     },
-    {
-        id: PRIMITIVES_TYPES.null,
-        name: 'Null',
-        options: {}
-    }
 ];
+
+interface IObjectElement {
+    key: string,
+    type: string,
+    required: boolean
+}
 
 interface IType {
     id: string,
@@ -83,7 +83,8 @@ interface IType {
         max?: number,
         minLength?: number,
         maxLength?: number
-        elementsType?: string
+        elementsType?: string,
+        elements?: IObjectElement[]
     }
 }
 
@@ -96,11 +97,18 @@ const emptyType:IType = {
     options: {}
 }
 
+const emptyElement:IObjectElement = {
+    key: '',
+    type: '',
+    required: true
+}
+
 const Types = () => {
     let params = useParams();
     const [types, setTypes] = useState<IType[]>([]);
 
     const [type, setType] = useState<IType>(emptyType);
+    const [element, setElement] = useState<IObjectElement>(emptyElement);
 
     const typeOptions = PRIMITIVES.map((type) => {
         return {
@@ -189,6 +197,7 @@ const Types = () => {
                >
                    <Stack.Item grow style={{ width: "50%" }}>
                        <TextField
+                           disabled={type.type === PRIMITIVES_TYPES.fn}
                            value={type.defaultValue}
                            placeholder="Default value"
                            onChange={(e, newValue) => {
@@ -234,16 +243,85 @@ const Types = () => {
                )}
 
                { type.type === PRIMITIVES_TYPES.object && (
-                   <Stack
-                       horizontal
-                       disableShrink
-                       wrap={false}
-                       tokens={{
-                           childrenGap: 5,
-                       }}
-                   >
-                       Fill key: type list
-                   </Stack>
+                   <>
+                       <Stack.Item>
+                           <Text variant="medium">Object Elements:</Text>
+                       </Stack.Item>
+
+                       <Stack
+                           horizontal
+                           disableShrink
+                           wrap={false}
+                           tokens={{
+                               childrenGap: 5,
+                           }}
+                       >
+                           <Stack.Item grow style={{ width: "50%" }}>
+                               <TextField
+                                   value={element.key}
+                                   placeholder="key"
+                                   onChange={(e, newValue) => {
+                                       setElement({
+                                           ...element,
+                                           key: newValue || ''
+                                       });
+                                   }}
+                               />
+                           </Stack.Item>
+                           <Stack.Item grow style={{ width: "40%" }}>
+                               <Dropdown
+                                   placeholder="Element Type"
+                                   selectedKey={element.key}
+                                   onChange={(e, newValue) => {
+                                       setElement({
+                                           ...element,
+                                           type: newValue?.key as string || ''
+                                       });
+                                   }}
+                                   options={typeOptions}
+                               />
+                           </Stack.Item>
+                           <Stack.Item grow style={{ width: "5%" }} align="center">
+                               <Checkbox
+                                   checked={element.required}
+                                   onChange={(e, newValue) => {
+                                       setElement({
+                                           ...element,
+                                           required: !!newValue
+                                       });
+                                   }}
+                               />
+                           </Stack.Item>
+                           <Stack.Item grow style={{ width: "5%" }}>
+                               <IconButton iconProps={{ iconName: 'add' }} onClick={() => {
+                                   setType({
+                                       ...type,
+                                       options: {
+                                           ...type.options,
+                                           elements: [
+                                               ...type.options.elements || [],
+                                               element
+                                           ]
+                                       }
+                                   });
+
+                                   setElement(emptyElement);
+                               }} />
+                           </Stack.Item>
+                       </Stack>
+                       {
+                           type.options.elements && type.options.elements.map((element) => {
+                                return (
+                                    <div>
+                                        <span className="type--name">{element.key}</span>
+                                        <span className="type--required">{!element.required && '?'}</span>
+                                        <span className="type--char">:</span>
+                                        <span className="type--type">{element.type}</span>
+                                    </div>
+                                )
+                           })
+                       }
+                   </>
                )}
 
                <br/>
