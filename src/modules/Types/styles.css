@@ -1,3 +1,22 @@
 .types-module {
     padding: var(--space-middle);
 }
+
+.type--name {
+    color: orange;
+}
+
+.type--required {
+    color: saddlebrown;
+}
+
+.type--char {
+}
+
+.type--type {
+    color: blue;
+}
+
+.type--default-value {
+    color: green;
+}

@@ -4,16 +4,26 @@ import './styles.css';
 import {
     TextField,
     Dropdown,
-    IDropdownOption,
     Stack,
     Text,
     SpinButton,
     Position, Checkbox, Label, Button, PrimaryButton
 } from "@fluentui/react";
+import uuid from "../../utils/uuid";
+
+const PRIMITIVES_TYPES = {
+    fn: 'fn',
+    object: '{}}',
+    array: '[]',
+    string: 'string',
+    number: 'number',
+    boolean: 'boolean',
+    null: 'null'
+}
 
 const PRIMITIVES = [
     {
-        id: 'fn',
+        id: PRIMITIVES_TYPES.fn,
         name: 'Function',
         options: {
             params: true,
@@ -21,21 +31,21 @@ const PRIMITIVES = [
         }
     },
     {
-        id: 'object',
+        id: PRIMITIVES_TYPES.object,
         name: 'Object',
         options: {
             keys: true
         }
     },
     {
-        id: 'array',
+        id: PRIMITIVES_TYPES.array,
         name: 'Array',
         options: {
             type: true
         }
     },
     {
-        id: 'string',
+        id: PRIMITIVES_TYPES.string,
         name: 'String',
         options: {
             minLength: true,
@@ -43,7 +53,7 @@ const PRIMITIVES = [
         }
     },
     {
-        id: 'number',
+        id: PRIMITIVES_TYPES.number,
         name: 'Number',
         options: {
             min: true,
@@ -51,22 +61,46 @@ const PRIMITIVES = [
         }
     },
     {
-        id: 'boolean',
+        id: PRIMITIVES_TYPES.boolean,
         name: 'Boolean',
         options: {}
     },
     {
-        id: 'null',
+        id: PRIMITIVES_TYPES.null,
         name: 'Null',
         options: {}
     }
 ];
 
+interface IType {
+    id: string,
+    name: string,
+    type: string | undefined,
+    defaultValue: string | undefined,
+    required: boolean,
+    options: {
+        min?: number,
+        max?: number,
+        minLength?: number,
+        maxLength?: number
+        elementsType?: string
+    }
+}
+
+const emptyType:IType = {
+    id: '',
+    name: '',
+    type: undefined,
+    defaultValue: undefined,
+    required: true,
+    options: {}
+}
+
 const Types = () => {
     let params = useParams();
+    const [types, setTypes] = useState<IType[]>([]);
 
-    const [selectedType, setSelectedType] = React.useState<IDropdownOption>();
-    const [name, setName] = useState<string | undefined>();
+    const [type, setType] = useState<IType>(emptyType);
 
     const typeOptions = PRIMITIVES.map((type) => {
         return {
@@ -74,6 +108,35 @@ const Types = () => {
             text: type.name
         }
     });
+
+    const onTypePropChange = (propName: string, newValue: any | undefined) => {
+        setType({
+            ...type,
+            [propName]: newValue
+        })
+    }
+
+    const onTypeOptionsChange = (propName: string, newValue: any | undefined) => {
+        setType({
+            ...type,
+            options: {
+                ...type.options,
+                [propName]: newValue
+            }
+        })
+    }
+
+    const onSaveType = () => {
+        setTypes([
+            ...types,
+            {
+                ...type,
+                id: uuid()
+            },
+        ]);
+
+        setType(emptyType);
+    }
 
     return (
        <div className='types-module'>
@@ -97,20 +160,18 @@ const Types = () => {
                >
                    <Stack.Item grow style={{ width: "50%" }}>
                        <TextField
-                           value={name}
+                           value={type.name}
                            placeholder="Name"
-                           onChange={(e, newValue) => setName(newValue) }
+                           onChange={(e, newValue) => onTypePropChange('name', newValue) }
                        />
                    </Stack.Item>
 
                    <Stack.Item grow style={{ width: "50%" }}>
                        <Dropdown
-                           disabled={!name}
                            placeholder="Type"
-                           selectedKey={selectedType?.id || undefined}
+                           selectedKey={type.type}
                            onChange={(event, item) => {
-                               const selectedType = PRIMITIVES.find((type) => type.id === item?.key);
-                               setSelectedType(selectedType);
+                               onTypePropChange('type', item?.key);
                            }}
                            options={typeOptions}
                        />
@@ -128,20 +189,66 @@ const Types = () => {
                >
                    <Stack.Item grow style={{ width: "50%" }}>
                        <TextField
-                           value={undefined}
+                           value={type.defaultValue}
                            placeholder="Default value"
-                           onChange={(e, newValue) => setName(newValue) }
+                           onChange={(e, newValue) => {
+                               onTypePropChange('defaultValue', newValue);
+                           }}
                        />
                    </Stack.Item>
 
                    <Stack.Item grow style={{ width: "50%" }}>
-                       <Checkbox label="Required" />
+                       <Checkbox
+                           label="Required"
+                           checked={type.required}
+                           onChange={(e, newValue) => {
+                               onTypePropChange('required', newValue);
+                           }} />
                    </Stack.Item>
                </Stack>
 
+
+               { type.type === PRIMITIVES_TYPES.array && (
+                   <Stack
+                       horizontal
+                       disableShrink
+                       wrap={false}
+                       tokens={{
+                           childrenGap: 5,
+                       }}
+                   >
+                       <Stack.Item grow style={{ width: "50%" }}>
+                           <Dropdown
+                               placeholder="Elements Type"
+                               selectedKey={type.options.elementsType || undefined}
+                               onChange={(event, item) => {
+                                   onTypeOptionsChange('elementsType', item?.key);
+                               }}
+                               options={typeOptions}
+                           />
+                       </Stack.Item>
+                       <Stack.Item grow style={{ width: "50%" }}>
+                           &nbsp;
+                       </Stack.Item>
+                   </Stack>
+               )}
+
+               { type.type === PRIMITIVES_TYPES.object && (
+                   <Stack
+                       horizontal
+                       disableShrink
+                       wrap={false}
+                       tokens={{
+                           childrenGap: 5,
+                       }}
+                   >
+                       Fill key: type list
+                   </Stack>
+               )}
+
                <br/>
 
-               { selectedType?.options.minLength && selectedType?.options.maxLength && (
+               { type.type === PRIMITIVES_TYPES.string && (
                <Stack
                    horizontal
                    disableShrink
@@ -152,28 +259,32 @@ const Types = () => {
                >
                    <Stack.Item grow style={{ width: "50%" }}>
                        <SpinButton
+                           onChange={(e, newValue) => {
+                               onTypeOptionsChange('minLength', newValue);
+                           }}
                            labelPosition={Position.top}
-                           defaultValue="0"
                            label="Min Length"
                            min={0}
-                           max={999999}
+                           max={9999999}
                            step={1}
                        />
                    </Stack.Item>
                    <Stack.Item grow style={{ width: "50%" }}>
                        <SpinButton
+                           onChange={(e, newValue) => {
+                               onTypeOptionsChange('maxLength', newValue);
+                           }}
                            labelPosition={Position.top}
-                           defaultValue="255"
                            label="Max Length"
                            min={0}
-                           max={999999}
+                           max={9999999}
                            step={1}
                        />
                    </Stack.Item>
                </Stack>
                )}
 
-               { selectedType?.options.min && selectedType?.options.max && (
+               { type.type === PRIMITIVES_TYPES.number && (
                    <Stack
                        horizontal
                        disableShrink
@@ -184,6 +295,9 @@ const Types = () => {
                    >
                        <Stack.Item grow style={{ width: "50%" }}>
                            <SpinButton
+                               onChange={(e, newValue) => {
+                                   onTypeOptionsChange('min', newValue);
+                               }}
                                placeholder="min"
                                labelPosition={Position.top}
                            />
@@ -191,13 +305,15 @@ const Types = () => {
 
                        <Stack.Item grow style={{ width: "50%" }}>
                            <SpinButton
+                               onChange={(e, newValue) => {
+                                   onTypeOptionsChange('max', newValue);
+                               }}
                                placeholder="max"
                                labelPosition={Position.top}
                            />
                        </Stack.Item>
                    </Stack>
                )}
-
 
                <Stack
                    horizontal
@@ -209,9 +325,39 @@ const Types = () => {
                    horizontalAlign="end"
                >
                     <Button>Close</Button>
-                    <PrimaryButton>Create</PrimaryButton>
+                    <PrimaryButton
+                        disabled={!type.name || !type.type}
+                        onClick={onSaveType}
+                    >
+                        Create
+                    </PrimaryButton>
                </Stack>
+
            </Stack>
+
+           <div>
+               {
+                   types.map((type) => (
+                       <div className="type">
+                           <span className="type--name">{type.name}</span>
+                           <span className="type--required">{!type.required && '?'}</span>
+                           <span className="type--char">:</span>
+                           <span className="type--type">{type.type}</span>
+
+                           { type.defaultValue && (
+                               <>
+                                   <span className="type--char"> = </span>
+                                   <span className="type--default-value">
+                                       {type.type === PRIMITIVES_TYPES.string && '"'}
+                                       {type.defaultValue}
+                                       {type.type === PRIMITIVES_TYPES.string && '"'}
+                                   </span>
+                               </>
+                           )}
+                       </div>
+                   ))
+               }
+           </div>
        </div>
     )
 }
