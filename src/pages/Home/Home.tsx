@@ -19,16 +19,16 @@ export const socket = io("ws://localhost:3001/", {
     // }
 });
 
-socket.on('connection', (socket) => {
+socket.on('connection', () => {
     console.log('a user connected');
+});
 
-    socket.on('disconnect', () => {
-        console.log('user disconnected');
-    });
+socket.on('disconnect', () => {
+    console.log('user disconnected');
+});
 
-    socket.on('confirm', (data: any) => {
-        console.log('client gets: user confirm', data);
-    });
+socket.on('confirm', (data: any) => {
+    console.log('client gets: user confirm', data);
 });
 
 window.addEventListener('click', (e) => {

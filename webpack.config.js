@@ -29,7 +29,7 @@ module.exports = {
     host: 'localhost',
     port: 3333,
     open: true,
-    hot: true,
+    hot: false,
     historyApiFallback: true,
     client: {
       overlay: false,
