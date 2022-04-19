@@ -10,7 +10,7 @@ const Apps = () => {
     const params = useParams();
 
     const [apps, setApps] = useAtom<any[]>(appsAtom);
-    const [appName, setAppName] = useState<string | null>(null);
+    const [appName, setAppName] = useState<string>();
 
     const createApp = () => {
         const newApp = {
@@ -18,8 +18,9 @@ const Apps = () => {
             name: appName
         }
 
+        // @ts-ignore
         setApps([...apps, newApp]);
-        setAppName(null);
+        setAppName(undefined);
     }
 
     return (

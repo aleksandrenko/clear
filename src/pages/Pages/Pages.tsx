@@ -18,7 +18,7 @@ const Pages = () => {
     const [apps, setApps] = useAtom<any[]>(appsAtom);
     const [newPageName, setNewPageName] = useState<string>('');
 
-    const onNewNameSet = (e) => {
+    const onNewNameSet = (e: { target: { value: any; }; }) => {
         const name = e.target.value;
         setNewPageName(name);
     }
@@ -37,6 +37,7 @@ const Pages = () => {
             return app;
         });
 
+        // @ts-ignore
         setApps(modifiedApps);
     }
 
