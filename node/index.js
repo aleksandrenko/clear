@@ -13,6 +13,8 @@ const io = new Server(server, {
   }
 });
 
+//TODO: add io middleware to work with session IDs
+
 app.use(cors());
 
 app.get('/', (req, res) => {
@@ -23,8 +25,26 @@ server.listen(port, () => {
   console.log('Listening on http://localhost:' + port);
 });
 
+//all connections
+let sockets = [];
+
 io.on('connection', (socket) => {
-  console.log('a user connected, socket.id', socket.id);
+  socket.broadcast.emit('user_connected', { user: socket.handshake.query.user });
+
+  sockets.push(socket);
+
+  socket.on("disconnect", (ms) => {
+    socket.broadcast.emit('user_disconnected', { user: socket.handshake.query.user });
+    sockets = sockets.filter(s => s.id !== socket.id);
+  });
+
+  socket.on('move', msg => {
+    socket.broadcast.emit(
+      'move_confirm',
+      { data: msg }
+    );
+  });
+
 
   socket.on('click', msg => {
     io.emit('confirm', {});

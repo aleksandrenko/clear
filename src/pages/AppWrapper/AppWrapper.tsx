@@ -7,6 +7,7 @@ import {
     CommandBar, Text, Persona, Separator
 } from "@fluentui/react";
 import Types from "../../modules/Types/Types";
+import {LiveCommunication} from "../../components/LiveCommunication/LiveCommunication";
 
 const AppWrapper = () => {
     let params = useParams();
@@ -75,27 +76,29 @@ const AppWrapper = () => {
                 &nbsp;&nbsp;&nbsp;
                 <Persona
                     imageInitials="NMA"
-                    text="Nikolay Aleksandrenko"
+                    text="" //Nikolay Aleksandrenko
                     secondaryText="Software Engineer"
                     tertiaryText="In a meeting"
                     optionalText="Available at 4:00pm"
                     size={2}
                     hidePersonaDetails={false}
                 />
+
+                <LiveCommunication />
             </div>
 
             <div className="app-page-wrapper">
                 <Outlet />
             </div>
 
-            <div className="app-page--modules">
-                <div className="app-page--modules-overlay" />
+            {/*<div className="app-page--modules">*/}
+            {/*    <div className="app-page--modules-overlay" />*/}
 
-                <div className="app-page--modules-wrapper">
-                    <Types />
-                </div>
+            {/*    <div className="app-page--modules-wrapper">*/}
+            {/*        <Types />*/}
+            {/*    </div>*/}
 
-            </div>
+            {/*</div>*/}
         </div>
     )
 }
