@@ -1,13 +1,17 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useId, useState} from "react";
 
 import { io } from "socket.io-client";
 
+import './LiveCommunication.css';
+
 const lcUsername = JSON.parse(window.localStorage.getItem('username') || "");
-const lcUserId = JSON.parse(window.localStorage.getItem('userId') || "");
+
+const trottleStep = 50;
+let  lastTrottledEmit = Date.now();
 
 export const LiveCommunication = () => {
     const [username, setUsername] = React.useState(lcUsername);
-    const [position, setPosition] = useState({x: 30, y: 30, _meta: { client: '' }});
+    const [position, setPosition] = useState({x: 30, y: 30, target: "", _meta: { client: '' }});
     const [connected, setConnected] = useState<string[]>([]);
 
     useEffect(() => {
@@ -22,14 +26,23 @@ export const LiveCommunication = () => {
         });
 
         const onMouseMove = (e: any) => {
-            socket.emit("move", {
-                x: e.pageX,
-                y: e.pageY,
-                _meta: {
-                    project: 'a',
-                    client: username
-                }
-            });
+            const now = Date.now();
+
+            console.log(e.path);
+
+            if (now - lastTrottledEmit > trottleStep) {
+                lastTrottledEmit = now;
+
+                socket.emit("move", {
+                    x: e.clientX,
+                    y: e.clientY,
+                    target: e.target.classes,
+                    _meta: {
+                        project: 'a',
+                        client: username
+                    }
+                });
+            }
         }
 
         window.addEventListener('mousemove', onMouseMove);
@@ -58,6 +71,7 @@ export const LiveCommunication = () => {
         });
 
         socket.on("move_confirm",(data: any) => {
+            console.log(data.data);
             setPosition(data.data);
         });
 
@@ -68,15 +82,10 @@ export const LiveCommunication = () => {
 
     return (
         <>
-            <div style={{
-                width: 5,
-                height: 5,
-                backgroundColor: "blue",
-                borderRadius: "50%",
-                position: 'fixed',
+            { position.target }
+            <div className="pointer" style={{
                 left: position.x,
                 top: position.y,
-                zIndex: 1000
             }}>
                 <div>{ position._meta.client }</div>
             </div>

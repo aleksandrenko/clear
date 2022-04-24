@@ -1,0 +1,9 @@
+.pointer {
+    width: 5px;
+    height: 5px;
+    background-color: blue;
+    border-radius: 50%;
+    position: fixed;
+    z-index: 1000;
+    transition: all 100ms ease-out;
+}
