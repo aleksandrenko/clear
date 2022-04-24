@@ -1,18 +1,43 @@
-import React, {useEffect, useId, useState} from "react";
-
+import React, {useEffect, useState} from "react";
 import { io } from "socket.io-client";
+// @ts-ignore
+import Simmer from 'simmerjs';
 
 import './LiveCommunication.css';
 
+const simmer = new Simmer()
+
 const lcUsername = JSON.parse(window.localStorage.getItem('username') || "");
 
-const trottleStep = 50;
-let  lastTrottledEmit = Date.now();
+const throttleStep = 50;
+let  lastThrottledEmit = Date.now();
 
 export const LiveCommunication = () => {
     const [username, setUsername] = React.useState(lcUsername);
-    const [position, setPosition] = useState({x: 30, y: 30, target: "", _meta: { client: '' }});
+    const [position, setPosition] = useState({x: 30, y: 30, _meta: {client: ""} });
+    const [socketData, setSocketData] = useState({x: 30, y: 30, target: "", _meta: { client: '' }});
     const [connected, setConnected] = useState<string[]>([]);
+
+    useEffect(() => {
+        console.log('socketData.target', socketData.target);
+
+        // Sometimes there is no target
+        if (!socketData.target) {
+            return;
+        }
+
+        const $target = document.querySelector(socketData.target);
+        const bound = $target?.getBoundingClientRect();
+
+        setPosition({
+            x: (bound?.width || 1) * socketData.x + (bound?.left || 0),
+            y: (bound?.height || 1) * socketData.y + (bound?.top || 0),
+            _meta: {
+                client: socketData._meta.client
+            }
+        });
+
+    }, [socketData]);
 
     useEffect(() => {
         window.localStorage.setItem('username', JSON.stringify(username));
@@ -28,20 +53,32 @@ export const LiveCommunication = () => {
         const onMouseMove = (e: any) => {
             const now = Date.now();
 
-            console.log(e.path);
+            if (now - lastThrottledEmit > throttleStep) {
+                const bounds = e.target.getBoundingClientRect();
+                const targetSelector = simmer(e.target);
 
-            if (now - lastTrottledEmit > trottleStep) {
-                lastTrottledEmit = now;
+                //if the selector is wrong don't emit a new mouse position
+                if (!targetSelector) {
+                    return;
+                }
 
-                socket.emit("move", {
-                    x: e.clientX,
-                    y: e.clientY,
-                    target: e.target.classes,
+                lastThrottledEmit = now;
+                const payload = {
+                    x: (e.clientX - bounds.left) / bounds.width,
+                    y: (e.clientY - bounds.top) / bounds.height,
+                    target: targetSelector,
                     _meta: {
                         project: 'a',
                         client: username
                     }
-                });
+                }
+
+                socket.emit("move", payload);
+
+                //FAKE IT - without server
+                // setTimeout(() => {
+                //     setSocketData(payload);
+                // }, 1000);
             }
         }
 
@@ -71,8 +108,7 @@ export const LiveCommunication = () => {
         });
 
         socket.on("move_confirm",(data: any) => {
-            console.log(data.data);
-            setPosition(data.data);
+            setSocketData(data.data);
         });
 
         return () => {
@@ -82,7 +118,7 @@ export const LiveCommunication = () => {
 
     return (
         <>
-            { position.target }
+            {/*{ position.target }*/}
             <div className="pointer" style={{
                 left: position.x,
                 top: position.y,
