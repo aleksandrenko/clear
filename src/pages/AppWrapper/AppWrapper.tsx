@@ -2,11 +2,10 @@ import React from 'react';
 import {Link, useParams, Outlet, useNavigate} from "react-router-dom";
 import {ROUTES} from "../../Router";
 
-import './style.css';
+import './AppWrapper.css';
 import {
     CommandBar, Text, Persona, Separator
 } from "@fluentui/react";
-import Types from "../../modules/Types/Types";
 import {LiveCommunication} from "../../components/LiveCommunication/LiveCommunication";
 
 const AppWrapper = () => {
@@ -16,7 +15,7 @@ const AppWrapper = () => {
     return (
         <div className="app">
             <div className="app-header">
-                <Text variant="medium" className="clr-logo" onClick={() => { navigate(`/${ROUTES.APPS}`) }}>Clear</Text>
+                <Text variant="medium" className="clr-logo" onClick={() => { navigate(`/${ROUTES.APPS}`) }}>clear:ui</Text>
 
                 &nbsp;&nbsp;&nbsp;<Separator vertical />
 

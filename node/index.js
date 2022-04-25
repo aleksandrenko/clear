@@ -45,9 +45,9 @@ io.on('connection', (socket) => {
     );
   });
 
-
   socket.on('click', msg => {
-    io.emit('confirm', {});
+    // socket.broadcast.emit('click', msg);
+    io.emit('click', msg);
   });
 
   socket.on("connect_error", (err) => {

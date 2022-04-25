@@ -1,22 +1,27 @@
 import React, {useEffect, useState} from "react";
-import { io } from "socket.io-client";
+import {io} from "socket.io-client";
 // @ts-ignore
 import Simmer from 'simmerjs';
 
 import './LiveCommunication.css';
+import {MousePointer} from "../MousePointer/MousePointer";
+import {ClickAnimation} from "../ClickAnimation/ClickAnimation";
 
-const simmer = new Simmer()
+const COLORS = ['#FFB900', '#E74856', '#0078D7', '#FF8C00', '#8E8CD8', '#038387', '#C239B3', '#10893E'];
+
+const simmer = new Simmer();
 
 const lcUsername = JSON.parse(window.localStorage.getItem('username') || "");
 
 const throttleStep = 50;
-let  lastThrottledEmit = Date.now();
+let lastThrottledEmit = Date.now();
 
 export const LiveCommunication = () => {
     const [username, setUsername] = React.useState(lcUsername);
-    const [position, setPosition] = useState({x: 30, y: 30, _meta: {client: ""} });
-    const [socketData, setSocketData] = useState({x: 30, y: 30, target: "", _meta: { client: '' }});
+    const [position, setPosition] = useState({x: 30, y: 30, _meta: {client: ""}});
+    const [socketData, setSocketData] = useState({x: 30, y: 30, target: "", _meta: {client: ''}});
     const [connected, setConnected] = useState<string[]>([]);
+    const [click, setClick] = useState({x: 10, y: 10});
 
     useEffect(() => {
         console.log('socketData.target', socketData.target);
@@ -40,15 +45,21 @@ export const LiveCommunication = () => {
     }, [socketData]);
 
     useEffect(() => {
-        window.localStorage.setItem('username', JSON.stringify(username));
-    }, [username]);
-
-    useEffect(() => {
         const socket = io("ws://localhost:3001/", {
             query: {
                 "user": username
             },
         });
+
+        const onClick = (e: any) => {
+            console.log(e);
+
+            const payload = {
+                x: e.clientX,
+                y: e.clientY
+            }
+            socket.emit("click", payload);
+        }
 
         const onMouseMove = (e: any) => {
             const now = Date.now();
@@ -75,7 +86,7 @@ export const LiveCommunication = () => {
 
                 socket.emit("move", payload);
 
-                //FAKE IT - without server
+                // FAKE IT - without server
                 // setTimeout(() => {
                 //     setSocketData(payload);
                 // }, 1000);
@@ -83,9 +94,9 @@ export const LiveCommunication = () => {
         }
 
         window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('click', onClick);
 
         socket.on('user_connected', (data) => {
-            console.log('a user connected', data);
             const username = data.user as string;
 
             if (username) {
@@ -107,34 +118,41 @@ export const LiveCommunication = () => {
             }
         });
 
-        socket.on("move_confirm",(data: any) => {
+        socket.on("move_confirm", (data: any) => {
             setSocketData(data.data);
+        });
+
+        socket.on("click", (data: any) => {
+            setClick(data);
         });
 
         return () => {
             window.removeEventListener('mousemove', onMouseMove);
+            window.removeEventListener('click', onClick);
         }
     }, [])
 
     return (
         <>
-            {/*{ position.target }*/}
-            <div className="pointer" style={{
-                left: position.x,
-                top: position.y,
-            }}>
-                <div>{ position._meta.client }</div>
-            </div>
+            <MousePointer
+                left={position.x}
+                top={position.y}
+                label={position._meta.client}
+                color={COLORS[0]}
+            />
+
+            <ClickAnimation
+                x={click.x}
+                y={click.y}
+            />
 
             <div>
-                { connected.map((c, index) => {
+                {connected.map((c, index) => {
                     return (
                         <b key={index}>{c[0]}</b>
                     )
-                }) }
+                })}
             </div>
-
-            <input value={username} onChange={(e) => setUsername(e.target.value)} />
         </>
     )
 }

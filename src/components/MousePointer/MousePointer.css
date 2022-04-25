@@ -1,0 +1,32 @@
+.cl-mouse-pointer {
+    position: absolute;
+    top: 100px;
+    left: 100px;
+    fill: #666;
+    display: flex;
+    align-content: center;
+    pointer-events: none;
+    z-index: 10000;
+}
+
+.cl-mouse-pointer svg {
+    width: 14px;
+    height: 14px;
+    filter: drop-shadow(2px 2px 2px rgb(0 0 0 / 0.2));
+    /*
+       Compensating the offset of the svg image
+    */
+    margin-left: -3px;
+    margin-top: -1px;
+}
+
+.cl-mouse-pointer label {
+    background: #666;
+    padding: 3px 6px 5px 6px;
+    line-height: 1;
+    font-size: x-small;
+    color: #fff;
+    margin-left: -4px;
+    margin-top: 14px;
+    box-shadow: 2px 2px 3px rgb(0, 0, 0, .2);
+}
