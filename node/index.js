@@ -1,4 +1,5 @@
 const port = 3001;
+const COLORS = ['#FFB900', '#E74856', '#0078D7', '#FF8C00', '#8E8CD8', '#038387', '#C239B3', '#10893E'];
 
 const express = require('express');
 const app = express();
@@ -28,26 +29,48 @@ server.listen(port, () => {
 //all connections
 let sockets = [];
 
-io.on('connection', (socket) => {
-  socket.broadcast.emit('user_connected', { user: socket.handshake.query.user });
+const getConnectedUser = (socket, index) => {
+  return {
+    username: socket.handshake.query.user,
+    id: socket.id,
+    color: COLORS[index]
+  }
+}
 
+io.on('connection', (socket) => {
   sockets.push(socket);
 
+  io.emit('user_connected', {
+    users: sockets.map((s, i) => {
+      return getConnectedUser(s, i);
+    })
+  });
+
   socket.on("disconnect", (ms) => {
-    socket.broadcast.emit('user_disconnected', { user: socket.handshake.query.user });
     sockets = sockets.filter(s => s.id !== socket.id);
+
+    io.emit('user_disconnected', {
+      users: sockets.map((s, i) => {
+        return getConnectedUser(s, i);
+      })
+    });
   });
 
   socket.on('move', msg => {
     socket.broadcast.emit(
       'move_confirm',
-      { data: msg }
+      {
+        ...msg,
+        id: socket.id
+      }
     );
   });
 
   socket.on('click', msg => {
-    // socket.broadcast.emit('click', msg);
-    io.emit('click', msg);
+    socket.broadcast.emit('click', {
+      ...msg,
+      id: socket.id
+    });
   });
 
   socket.on("connect_error", (err) => {

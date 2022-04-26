@@ -7,8 +7,6 @@ import './LiveCommunication.css';
 import {MousePointer} from "../MousePointer/MousePointer";
 import {ClickAnimation} from "../ClickAnimation/ClickAnimation";
 
-const COLORS = ['#FFB900', '#E74856', '#0078D7', '#FF8C00', '#8E8CD8', '#038387', '#C239B3', '#10893E'];
-
 const simmer = new Simmer();
 
 const lcUsername = JSON.parse(window.localStorage.getItem('username') || "");
@@ -18,31 +16,47 @@ let lastThrottledEmit = Date.now();
 
 export const LiveCommunication = () => {
     const [username, setUsername] = React.useState(lcUsername);
-    const [position, setPosition] = useState({x: 30, y: 30, _meta: {client: ""}});
-    const [socketData, setSocketData] = useState({x: 30, y: 30, target: "", _meta: {client: ''}});
-    const [connected, setConnected] = useState<string[]>([]);
+    const [connections, setConnections] = useState<any[]>([]);
+    const [mouseMove, setMouseMove] = useState<{ id: number, x: number, y: number }>();
     const [click, setClick] = useState({x: 10, y: 10});
 
-    useEffect(() => {
-        console.log('socketData.target', socketData.target);
+    const getPayload = (e: any) => {
+        const bounds = e.target.getBoundingClientRect();
+        const targetSelector = simmer(e.target);
 
-        // Sometimes there is no target
-        if (!socketData.target) {
-            return;
-        }
-
-        const $target = document.querySelector(socketData.target);
-        const bound = $target?.getBoundingClientRect();
-
-        setPosition({
-            x: (bound?.width || 1) * socketData.x + (bound?.left || 0),
-            y: (bound?.height || 1) * socketData.y + (bound?.top || 0),
+        return {
+            x: (e.clientX - bounds.left) / bounds.width,
+            y: (e.clientY - bounds.top) / bounds.height,
+            target: targetSelector,
             _meta: {
-                client: socketData._meta.client
+                project: 'a',
+                client: username
             }
-        });
+        }
+    }
 
-    }, [socketData]);
+    const translateCoordinates = (data: any) => {
+        const $target = document.querySelector(data.target);
+        const bound = $target?.getBoundingClientRect();
+        const payload = {
+            x: (bound?.width || 1) * data.x + (bound?.left || 0),
+            y: (bound?.height || 1) * data.y + (bound?.top || 0),
+        }
+        return payload
+    }
+
+    useEffect(() => {
+        const modifiedConnectedUsers = connections.map((connection: any) => {
+            if (connection.id === mouseMove?.id) {
+                const translatedCoordinates = translateCoordinates(mouseMove);
+
+                connection.x = translatedCoordinates.x;
+                connection.y = translatedCoordinates.y
+            }
+
+            return connection;
+        });
+    }, [mouseMove]);
 
     useEffect(() => {
         const socket = io("ws://localhost:3001/", {
@@ -52,12 +66,7 @@ export const LiveCommunication = () => {
         });
 
         const onClick = (e: any) => {
-            console.log(e);
-
-            const payload = {
-                x: e.clientX,
-                y: e.clientY
-            }
+            const payload = getPayload(e);
             socket.emit("click", payload);
         }
 
@@ -65,31 +74,10 @@ export const LiveCommunication = () => {
             const now = Date.now();
 
             if (now - lastThrottledEmit > throttleStep) {
-                const bounds = e.target.getBoundingClientRect();
-                const targetSelector = simmer(e.target);
-
-                //if the selector is wrong don't emit a new mouse position
-                if (!targetSelector) {
-                    return;
-                }
-
+                const payload = getPayload(e);
                 lastThrottledEmit = now;
-                const payload = {
-                    x: (e.clientX - bounds.left) / bounds.width,
-                    y: (e.clientY - bounds.top) / bounds.height,
-                    target: targetSelector,
-                    _meta: {
-                        project: 'a',
-                        client: username
-                    }
-                }
 
                 socket.emit("move", payload);
-
-                // FAKE IT - without server
-                // setTimeout(() => {
-                //     setSocketData(payload);
-                // }, 1000);
             }
         }
 
@@ -97,33 +85,30 @@ export const LiveCommunication = () => {
         window.addEventListener('click', onClick);
 
         socket.on('user_connected', (data) => {
-            const username = data.user as string;
-
-            if (username) {
-                setConnected([
-                    ...connected,
-                    username
-                ]);
+            if (data.users) {
+                setConnections(data.users);
             }
         });
 
         socket.on('user_disconnected', (data) => {
-            const username = data.user as string;
-
-            if (username) {
-                setConnected([
-                    ...connected
-                        .filter(connectedUser => connectedUser !== username),
-                ]);
+            if (data.users) {
+                setConnections(data.users);
             }
         });
 
         socket.on("move_confirm", (data: any) => {
-            setSocketData(data.data);
+            setMouseMove(data);
         });
 
         socket.on("click", (data: any) => {
-            setClick(data);
+            const translatedPosition = translateCoordinates(data);
+            const $d = document.querySelector(data.target);
+            const w = $d.getBoundingClientRect();
+
+            setClick({
+                x: translatedPosition.x,
+                y: translatedPosition.y
+            });
         });
 
         return () => {
@@ -134,25 +119,27 @@ export const LiveCommunication = () => {
 
     return (
         <>
-            <MousePointer
-                left={position.x}
-                top={position.y}
-                label={position._meta.client}
-                color={COLORS[0]}
-            />
-
             <ClickAnimation
                 x={click.x}
                 y={click.y}
             />
 
             <div>
-                {connected.map((c, index) => {
-                    return (
-                        <b key={index}>{c[0]}</b>
-                    )
+                {connections.map((connection: any, index) => {
+                    return <span key={index}>({connection.username[0]})</span>
                 })}
             </div>
+
+            {connections.map((connection: any, index) => connection.x && connection.y && (
+                    <MousePointer
+                        key={index + "-pointer"}
+                        left={connection.x}
+                        top={connection.y}
+                        label={connection.username}
+                        color={connection.color}
+                    />
+                )
+            )}
         </>
     )
 }
