@@ -67,6 +67,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('click', msg => {
+    // io.emit('click', { //emit to all for testing
     socket.broadcast.emit('click', {
       ...msg,
       id: socket.id

@@ -3,15 +3,15 @@ import React from "react";
 import './MousePointer.css';
 
 type Props = {
-    left: number
-    top: number
+    x: number
+    y: number
     label: string
     color: string
 }
 
-export const MousePointer = ({ left, top, label, color }: Props) => {
+export const MousePointer = ({ x, y, label, color }: Props) => {
     return (
-        <div className="cl-mouse-pointer" style={{ left: left, top: top }}>
+        <div className="cl-mouse-pointer" style={{ left: x, top: y }}>
             <svg x="0px" y="0px" viewBox="0 0 1000 1000" fill={color}>
                 <g>
                     <g transform="translate(0.000000,512.000000) scale(0.100000,-0.100000)">

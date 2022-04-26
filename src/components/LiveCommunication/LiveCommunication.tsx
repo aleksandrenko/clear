@@ -1,14 +1,15 @@
-import React, {useEffect, useState} from "react";
+import React, {createRef, useEffect, useRef, useState} from "react";
 import {io} from "socket.io-client";
 // @ts-ignore
 import Simmer from 'simmerjs';
 
 import './LiveCommunication.css';
 import {MousePointer} from "../MousePointer/MousePointer";
-import {ClickAnimation} from "../ClickAnimation/ClickAnimation";
+import {ClickAnimations} from "../ClickAnimation/ClickAnimations";
 
 const simmer = new Simmer();
 
+const WS_URL = "ws://localhost:3001/";
 const lcUsername = JSON.parse(window.localStorage.getItem('username') || "");
 
 const throttleStep = 50;
@@ -18,9 +19,9 @@ export const LiveCommunication = () => {
     const [username, setUsername] = React.useState(lcUsername);
     const [connections, setConnections] = useState<any[]>([]);
     const [mouseMove, setMouseMove] = useState<{ id: number, x: number, y: number }>();
-    const [click, setClick] = useState({x: 10, y: 10});
+    const clicksRef = React.useRef({});
 
-    const getPayload = (e: any) => {
+    const toPayload = (e: any) => {
         const bounds = e.target.getBoundingClientRect();
         const targetSelector = simmer(e.target);
 
@@ -34,8 +35,7 @@ export const LiveCommunication = () => {
             }
         }
     }
-
-    const translateCoordinates = (data: any) => {
+    const fromPayload = (data: any) => {
         const $target = document.querySelector(data.target);
         const bound = $target?.getBoundingClientRect();
         const payload = {
@@ -48,33 +48,37 @@ export const LiveCommunication = () => {
     useEffect(() => {
         const modifiedConnectedUsers = connections.map((connection: any) => {
             if (connection.id === mouseMove?.id) {
-                const translatedCoordinates = translateCoordinates(mouseMove);
-
-                connection.x = translatedCoordinates.x;
-                connection.y = translatedCoordinates.y
+                const translatedCoordinates = fromPayload(mouseMove);
+                return {
+                    ...connection,
+                    x: translatedCoordinates.x,
+                    y: translatedCoordinates.y
+                }
             }
 
             return connection;
         });
+
+        setConnections(modifiedConnectedUsers);
     }, [mouseMove]);
 
     useEffect(() => {
-        const socket = io("ws://localhost:3001/", {
+        const socket = io(WS_URL, {
             query: {
                 "user": username
             },
         });
 
         const onClick = (e: any) => {
-            const payload = getPayload(e);
+            const payload = toPayload(e);
             socket.emit("click", payload);
         }
-
         const onMouseMove = (e: any) => {
             const now = Date.now();
 
+            //ТОДО: this is not working good. The last value should be send. Otherwise a click's position may differ from a click;
             if (now - lastThrottledEmit > throttleStep) {
-                const payload = getPayload(e);
+                const payload = toPayload(e);
                 lastThrottledEmit = now;
 
                 socket.emit("move", payload);
@@ -101,11 +105,10 @@ export const LiveCommunication = () => {
         });
 
         socket.on("click", (data: any) => {
-            const translatedPosition = translateCoordinates(data);
-            const $d = document.querySelector(data.target);
-            const w = $d.getBoundingClientRect();
+            const translatedPosition = fromPayload(data);
 
-            setClick({
+            // @ts-ignore
+            clicksRef.current.addClick({
                 x: translatedPosition.x,
                 y: translatedPosition.y
             });
@@ -119,10 +122,7 @@ export const LiveCommunication = () => {
 
     return (
         <>
-            <ClickAnimation
-                x={click.x}
-                y={click.y}
-            />
+            <ClickAnimations compRef={clicksRef}/>
 
             <div>
                 {connections.map((connection: any, index) => {
@@ -133,8 +133,8 @@ export const LiveCommunication = () => {
             {connections.map((connection: any, index) => connection.x && connection.y && (
                     <MousePointer
                         key={index + "-pointer"}
-                        left={connection.x}
-                        top={connection.y}
+                        x={connection.x}
+                        y={connection.y}
                         label={connection.username}
                         color={connection.color}
                     />
