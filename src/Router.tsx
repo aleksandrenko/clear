@@ -9,6 +9,7 @@ import Home from "./pages/Home/Home";
 import Pages from "./pages/Pages/Pages";
 import Page from "./pages/Page/Page";
 import AppWrapper from "./pages/AppWrapper/AppWrapper";
+import {Flow} from "./modules/Flow/Flow";
 
 export const ROUTES = {
     HOME: '/',
@@ -23,7 +24,8 @@ function Router() {
   return (
       <BrowserRouter basename="/">
         <Routes>
-          <Route path={ROUTES.HOME} element={<Home />} />
+          <Route path={ROUTES.HOME} element={<Flow />} />
+          {/*<Route path={ROUTES.HOME} element={<Home />} />*/}
           <Route path={ROUTES.APPS}>
             <Route path="" element={<Apps />} />
 

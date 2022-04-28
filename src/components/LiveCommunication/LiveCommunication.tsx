@@ -10,7 +10,7 @@ import {ClickAnimations} from "../ClickAnimation/ClickAnimations";
 const simmer = new Simmer();
 
 const WS_URL = "ws://localhost:3001/";
-const lcUsername = JSON.parse(window.localStorage.getItem('username') || "");
+const lcUsername = JSON.parse(window.localStorage.getItem('username') || null);
 
 const throttleStep = 50;
 let lastThrottledEmit = Date.now();

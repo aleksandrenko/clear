@@ -1,0 +1,25 @@
+.clr-flow {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+.clr-flow__canvas {
+    flex: 1;
+}
+
+.clr-flow__save-controls {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    z-index: 4;
+    font-size: 12px;
+}
+
+.clr-flow__save-controls button {
+    margin-left: 5px;
+}
