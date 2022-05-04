@@ -35,11 +35,10 @@ export const FlowNode = memo(({data = defData}) => {
                 {data.inputs.map((input, index, allInputs) => {
                     return (
                         <Handle
-                            id={input.name}
+                            id={data.id + '_' + input.name}
                             key={index}
                             type="target"
                             isConnectable
-                            onConnect={(params) => console.log('handle onConnect', params)}
                             className="nma--flow-node--dot"
                         >
                             <div className="nma--flow-node--dot-name">{input.name}</div>
@@ -49,7 +48,7 @@ export const FlowNode = memo(({data = defData}) => {
             </div>
 
             <div className={nodeBodyClasses}>
-                <div className="nma--flow-node--type">{data.type} ({data.id}):</div>
+                <div className="nma--flow-node--type">{data.type}:</div>
                 <div className="nma--flow-node--label">{data.name}</div>
             </div>
 
@@ -57,11 +56,10 @@ export const FlowNode = memo(({data = defData}) => {
                 {data.outputs.map((output, index, allInputs) => {
                     return (
                         <Handle
-                            id={output.name}
+                            id={data.id + '_' + output.name}
                             key={index}
                             type="source"
                             isConnectable
-                            onConnect={(params) => console.log('handle onConnect', params)}
                             className="nma--flow-node--dot"
                         >
                             <div className="nma--flow-node--dot-name">{output.name}</div>

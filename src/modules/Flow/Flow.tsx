@@ -9,22 +9,27 @@ import ReactFlow, {
     addEdge,
     useNodesState,
     useEdgesState,
-    MarkerType
+    MarkerType, useReactFlow, EdgeTypes, updateEdge
 } from 'react-flow-renderer';
 
-import {useCallback, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {FlowNode} from "./FlowNode";
 
 import './Flow.css'
 import {ConnectionLine} from "./ConnectionLine";
 import {NodeTypes} from "react-flow-renderer/dist/esm/types";
+import {ButtonEdge} from "./ButtonEdge";
+
+
+const flowKey = 'example-flow';
 
 const nodeTypes: NodeTypes = {
     flowNode: FlowNode,
 };
 
-const edgeTypes = {
+const edgeTypes: EdgeTypes = {
     connectionLine: ConnectionLine,
+    buttonEdge: ButtonEdge
 };
 
 const getTarget = (source, sourceHandle) => {
@@ -183,55 +188,79 @@ const initialNodes = [
     },
 ];
 
-const initialEdges = [
-    {
-        id: 'e1-2',
-        source: blocks[0].id,
-        target: blocks[1].id,
-        animated: true,
-        type: 'smoothstep',
-        markerEnd: {
-            type: MarkerType.ArrowClosed,
-        }
-    },
-    {
-        id: 'e2-3',
-        type: 'smoothstep',
-        source: blocks[1].id,
-        target: blocks[2].id,
-    },
-    {
-        id: 'e2-4',
-        type: 'smoothstep',
-        source: blocks[1].id,
-        target: blocks[3].id,
-    }
-];
-
+const initialEdges = [];
 
 const FlowManager = () => {
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+    const [rfInstance, setRfInstance] = useState(null);
+    const { setViewport } = useReactFlow();
+
+    useEffect(() => {
+        restore();
+    }, []);
+
+    useEffect(() => {
+        save();
+    }, [nodes, edges]);
+
+    const onConnect = (params) => {
+        setEdges((els) => {
+            return addEdge(params, els)
+        });
+    };
+
+    const save = useCallback(() => {
+        if (rfInstance) {
+            const flow = rfInstance.toObject();
+            localStorage.setItem(flowKey, JSON.stringify(flow));
+        }
+    }, [rfInstance]);
+
+    const restore = useCallback(() => {
+        const restoreFlow = async () => {
+            const flow = JSON.parse(localStorage.getItem(flowKey));
+
+            if (flow) {
+                const { x = 0, y = 0, zoom = 1 } = flow.viewport;
+                setNodes(flow.nodes || []);
+                setEdges(flow.edges || []);
+                setViewport({ x, y, zoom });
+            }
+        };
+
+        restoreFlow();
+    }, [setNodes, setViewport]);
+
+    const edgeClickHandler = (e, edge: any) => {
+        const target = e.target;
+        if (target.className === 'edgebutton') {
+            setEdges(edges.filter(_edge => _edge.id !== edge.id));
+        }
+    }
 
     return (
         <div className="nma--flow-editor">
             <div className="nma--flow-editor-flow">
                 <ReactFlow
-                    nodes={nodes}
-                    edges={edges}
-                    nodeTypes={nodeTypes}
                     maxZoom={1.2}
                     minZoom={0.8}
                     defaultZoom={1}
                     snapToGrid={true}
-                    snapGrid={[10, 10]}
-                    connectionLineComponent={ConnectionLine}
+                    nodes={nodes}
+                    edges={edges}
+                    nodeTypes={nodeTypes}
+                    edgeTypes={edgeTypes}
+                    onConnect={onConnect}
+                    onInit={setRfInstance}
                     onNodesChange={onNodesChange}
                     onEdgesChange={onEdgesChange}
-                    // onConnect={onConnect}
-                    // onLoad={setRfInstance}
+                    connectionLineComponent={ConnectionLine}
+                    defaultEdgeOptions={{ type: "buttonEdge" }}
+                    defaultNodesOptions={{ type: 'flowNode' }}
+                    onEdgeClick={edgeClickHandler}
                 >
-                    {/*<MiniMap/>*/}
+                    <MiniMap/>
                     <Controls/>
                     <Background
                         style={{background: "#22323d"}}
