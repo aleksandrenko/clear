@@ -55,9 +55,7 @@ export const ButtonEdge: ConnectionLineComponent = ({
                 requiredExtensions="http://www.w3.org/1999/xhtml"
             >
                 <body>
-                    <button className="edgebutton">
-                        ×
-                    </button>
+                    <button className="edgebutton">×</button>
                 </body>
             </foreignObject>
         </>

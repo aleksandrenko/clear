@@ -244,7 +244,7 @@ const FlowManager = () => {
             <div className="nma--flow-editor-flow">
                 <ReactFlow
                     maxZoom={1.2}
-                    minZoom={0.8}
+                    minZoom={0.5}
                     defaultZoom={1}
                     snapToGrid={true}
                     nodes={nodes}
