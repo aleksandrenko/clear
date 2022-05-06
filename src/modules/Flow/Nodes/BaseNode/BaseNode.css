@@ -12,16 +12,14 @@
 
 .cl-flow__node {
     box-sizing: border-box;
-    background: #172a32;
     font-size: 13px;
     min-width: 120px;
     border-radius: 5px;
+    background: #fff;
 
     transition: border 0.15s;
-    border: solid #0d181e 2px;
-    border-bottom-width: 4px;
-
-    color: #c9d4da;
+    border: 1px solid rgb(138, 136, 134);
+    border-bottom-width: 2px;
 }
 
 .cl-flow__node__body {
@@ -34,9 +32,13 @@
     position: relative;
 }
 
-cl-flow__node__type {
+.cl-flow__node__type {
     opacity: 0.6;
     padding-bottom: 5px;
+}
+
+.cl-flow__node__description {
+    font-size: x-small;
 }
 
 .cl-flow__node__dots-outputs,
@@ -46,7 +48,7 @@ cl-flow__node__type {
     display: flex;
     flex-direction: column;
     justify-content: space-around;
-    top: 13px;
+    top: 10px;
     bottom: 4px;
 }
 
@@ -57,7 +59,7 @@ cl-flow__node__type {
 
 .cl-flow__node__dot {
     background: #fff !important;
-    border: solid 2px #2b4e62 !important;
+    border: solid 3px #2b4e62 !important;
 }
 
 .cl-flow__node__dot-name {
@@ -74,7 +76,7 @@ cl-flow__node__type {
     opacity: 0.8;
 }
 
-.cl-flow__node__dots-outputs .cl-flow__node__node--dot-name {
+.cl-flow__node__dots-outputs .cl-flow__node__dot-name {
     right: 0;
     left: 15px;
 }

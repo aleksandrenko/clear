@@ -91,7 +91,7 @@ const FlowManager = () => {
     }
 
     const nodeClickHandler = (e, node) => {
-        const isDeleteTarget = e.target.className = 'nma--flow-node--delete';
+        const isDeleteTarget = e.target.className === 'cl-flow__node__delete';
 
         if (isDeleteTarget) {
             setNodes(nodes.filter(_node => _node.id !== node.id));
@@ -133,9 +133,7 @@ const FlowManager = () => {
                 >
                     <MiniMap/>
                     <Controls/>
-                    <Background
-                        style={{background: "#22323d"}}
-                    />
+                    <Background />
                     <div className="npm-flow-editor__actions">
                         <Blocks onSelect={(selectedBlock) => {
                             addNodeSelectHandler(selectedBlock);

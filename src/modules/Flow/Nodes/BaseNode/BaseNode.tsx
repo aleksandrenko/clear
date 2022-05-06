@@ -2,6 +2,8 @@ import React, {memo} from 'react';
 import './BaseNode.css';
 
 import {Handle, Position} from 'react-flow-renderer';
+import {BLOCK_ARGUMENT, CLFlowBlockArgumentType} from "../../Blocks/Blocks";
+import {TextField} from "@fluentui/react";
 
 export const BaseNode = memo((props) => {
     console.log('props', props);
@@ -26,9 +28,22 @@ export const BaseNode = memo((props) => {
                 })}
             </div>
 
-            <div className="cl-flow__node__body">
-                <div className="cl-flow__node__type">{data.type}:</div>
-                <div className="cl-flow__node__label">{data.name}</div>
+            <div className="cl-flow__node__body" style={{
+                borderColor: data.color || ''
+            }}>
+                <div className="cl-flow__node__type">{data.type}</div>
+                <div className="cl-flow__node__description">{data.description}</div>
+                <div className="cl-flow__node__args">
+                    { data.args?.map((arg: CLFlowBlockArgumentType) => {
+                        if (arg.type === BLOCK_ARGUMENT.number) {
+                            return <TextField label={arg.name} defaultValue={arg.defaultValue} />
+                        }
+
+                        return (
+                            <div>{ JSON.stringify(arg) }</div>
+                        )
+                    }) }
+                </div>
                 <div className="cl-flow__node__delete">×</div>
             </div>
 
