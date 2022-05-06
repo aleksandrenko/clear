@@ -10,7 +10,7 @@
     position: relative !important;
 }
 
-.nma--flow-node {
+.cl-flow__node {
     box-sizing: border-box;
     background: #172a32;
     font-size: 13px;
@@ -24,7 +24,7 @@
     color: #c9d4da;
 }
 
-.nma--flow-node-body {
+.cl-flow__node__body {
     border-top: solid 4px #777;
     padding: 12px 30px 12px 15px;
     border-top-right-radius: 3px;
@@ -34,35 +34,13 @@
     position: relative;
 }
 
-.nma--flow-node-body__executed {
-    box-shadow: inset 0 0 0 200px rgba(255, 110, 255, 0.2);
-}
-
-/* node types */
-.nma--flow-node-body__click {
-    border-top-color: #be52c7;
-}
-
-.nma--flow-node-body__conditional {
-    border-top-color: #00c621;
-}
-
-.nma--flow-node-body__output {
-    border-top-color: #5254c7;
-}
-/* end of node types */
-
-.nma--flow-node--type {
+cl-flow__node__type {
     opacity: 0.6;
     padding-bottom: 5px;
 }
 
-.nma--flow-node--label {
-
-}
-
-.nma--flow-node--dots-outputs,
-.nma--flow-node--dots-inputs {
+.cl-flow__node__dots-outputs,
+.cl-flow__node__dots-inputs {
     position: absolute;
     left: -5px;
     display: flex;
@@ -72,17 +50,17 @@
     bottom: 4px;
 }
 
-.nma--flow-node--dots-outputs {
+.cl-flow__node__dots-outputs {
     left: auto;
     right: -4px;
 }
 
-.nma--flow-node--dot {
+.cl-flow__node__dot {
     background: #fff !important;
     border: solid 2px #2b4e62 !important;
 }
 
-.nma--flow-node--dot-name {
+.cl-flow__node__dot-name {
     position: absolute;
     right: 17px;
     white-space: nowrap;
@@ -92,16 +70,16 @@
     transform: translateY(-30%);
 }
 
-.nma--flow-node:hover .nma--flow-node--dot-name {
+.cl-flow__node:hover .cl-flow__node__dot-name {
     opacity: 0.8;
 }
 
-.nma--flow-node--dots-outputs .nma--flow-node--dot-name {
+.cl-flow__node__dots-outputs .cl-flow__node__node--dot-name {
     right: 0;
     left: 15px;
 }
 
-.nma--flow-node--delete {
+.cl-flow__node__delete {
     position: absolute;
     top: 10px;
     right: 12px;
@@ -116,6 +94,6 @@
     width: 15px;
 }
 
-.nma--flow-node--delete:hover {
+.cl-flow__node__delete:hover {
     opacity: 1;
 }

@@ -4,21 +4,31 @@ import { useConst } from '@fluentui/react-hooks';
 import {
     ContextualMenuItemType,
     DefaultButton,
-    Dropdown,
-    DropdownMenuItemType,
     IContextualMenuProps,
-    IDropdownOption
 } from "@fluentui/react";
+import {NODE_TYPES} from "../Nodes";
 
 //inspiration ideas, naming
 //https://rxjs.dev/guide/operators#multicasting-operators
 
+export type CLFlowBlockInputsType = {
+    name: string,
+    func: (data: any) => any
+}
+
+export type CLFlowBlockOutputsType = {
+    name: string,
+    func: (data: any) => any
+}
+
 export type CLFlowBlockType = {
     type: string,
+    color?: string,
+    nodeType?: string,
     name?: string,
     executed?: boolean,
-    inputs: any[],
-    outputs: any[]
+    inputs: CLFlowBlockInputsType[],
+    outputs: CLFlowBlockOutputsType[]
 }
 
 // Inputs (start blocks)
@@ -39,6 +49,8 @@ const Event: CLFlowBlockType = {
 
 const Timer: CLFlowBlockType = {
     type: 'Timer',
+    color: '#f00',
+    nodeType: NODE_TYPES.baseNode,
     name: '#to be changed',
     executed: false,
     inputs: [],
@@ -286,18 +298,18 @@ export const Blocks = ({ onSelect }: BlocksSelector) => {
         },
         items: [
             { key: 'inputs_divider', itemType: ContextualMenuItemType.Divider },
-            { key: 'input', text: 'Inputs', itemType: ContextualMenuItemType.Header },
+            { key: 'input', text: 'Inputs (out)', itemType: ContextualMenuItemType.Header },
             { key: 'event', text: 'Dom Event', block: Event },
             { key: 'timer', text: 'Timer', block: Timer },
 
             { key: 'inputs_others', itemType: ContextualMenuItemType.Divider },
-            { key: 'other', text: 'Others', itemType: ContextualMenuItemType.Header },
+            { key: 'other', text: 'Others (in/out)', itemType: ContextualMenuItemType.Header },
             { key: 'constant', text: 'Constant', block: Constant },
             { key: 'delay', text: 'Delay', block: Delay },
             { key: 'tap', text: 'Tap', block: Tap },
 
             { key: 'inputs_process', itemType: ContextualMenuItemType.Divider },
-            { key: 'process', text: 'Process', itemType: ContextualMenuItemType.Header },
+            { key: 'process', text: 'Process (in/out)', itemType: ContextualMenuItemType.Header },
             { key: 'httpRequest', text: 'HTTPRequest', block: HTTPRequest },
             { key: 'transform', text: 'Transform', block: Transform },
             { key: 'join', text: 'Join', block: Join },
@@ -305,7 +317,7 @@ export const Blocks = ({ onSelect }: BlocksSelector) => {
             { key: 'conditional', text: 'Conditional', block: Conditional },
 
             { key: 'inputs_outputs', itemType: ContextualMenuItemType.Divider },
-            { key: 'output', text: 'Outputs', itemType: ContextualMenuItemType.Header },
+            { key: 'output', text: 'Outputs (out)', itemType: ContextualMenuItemType.Header },
             { key: 'mutation', text: 'Mutation', block: Mutation },
             { key: 'eventDispatch', text: 'Event Dispatch', block: EventDispatch },
         ],
@@ -314,6 +326,6 @@ export const Blocks = ({ onSelect }: BlocksSelector) => {
 
     //TODO: filter the available blocks based on context - only inputs or no inputs
     return (
-        <DefaultButton text="Add block" menuProps={menuProps} />
+        <DefaultButton text="New Node" menuProps={menuProps} />
     );
 }
