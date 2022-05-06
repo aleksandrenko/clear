@@ -19,7 +19,7 @@ export const ConnectionLine: ConnectionLineComponent = ({
         <g>
             <path
                 fill="none"
-                stroke="#fff"
+                stroke="#333"
                 strokeWidth={1.7}
                 className="animated"
                 d={`M${sourceX},${sourceY} L${sourceX+horizontalLineWidth},${sourceY} L${targetX-horizontalLineWidth},${targetY} ${targetX},${targetY}`}

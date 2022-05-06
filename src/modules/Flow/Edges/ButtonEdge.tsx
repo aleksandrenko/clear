@@ -42,8 +42,10 @@ export const ButtonEdge: ConnectionLineComponent = ({
         <>
             <path
                 id={id}
-                className="react-flow__edge-path"
                 d={edgePath}
+                fill="none"
+                stroke="#666"
+                strokeWidth={1.5}
                 markerEnd={{ type: MarkerType.ArrowClosed }}
             />
             <foreignObject
