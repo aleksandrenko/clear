@@ -1,15 +1,14 @@
 import React from 'react';
 import {
-    getBezierPath,
-    getEdgeCenter,
-    getMarkerEnd,
     getSimpleBezierEdgeCenter,
     getSimpleBezierPath,
     MarkerType
 } from 'react-flow-renderer';
 
 import './ButtonEdge.css';
-import {ConnectionLineComponent} from "react-flow-renderer/dist/esm/types";
+import {
+    ConnectionLineComponent
+} from "react-flow-renderer/dist/esm/types";
 
 const foreignObjectSize = 40;
 
@@ -31,6 +30,7 @@ export const ButtonEdge: ConnectionLineComponent = ({
         targetY,
         targetPosition,
     });
+
     const [edgeCenterX, edgeCenterY] = getSimpleBezierEdgeCenter({
         sourceX,
         sourceY,

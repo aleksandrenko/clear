@@ -32,7 +32,7 @@ export const FlowNode = memo(({data = defData}) => {
     return (
         <div className="nma--flow-node">
             <div className="nma--flow-node--dots-inputs">
-                {data.inputs.map((input, index, allInputs) => {
+                {data.inputs.map((input, index) => {
                     return (
                         <Handle
                             id={data.id + '_' + input.name}
@@ -50,10 +50,11 @@ export const FlowNode = memo(({data = defData}) => {
             <div className={nodeBodyClasses}>
                 <div className="nma--flow-node--type">{data.type}:</div>
                 <div className="nma--flow-node--label">{data.name}</div>
+                <div className="nma--flow-node--delete">×</div>
             </div>
 
             <div className="nma--flow-node--dots-outputs">
-                {data.outputs.map((output, index, allInputs) => {
+                {data.outputs.map((output, index) => {
                     return (
                         <Handle
                             id={data.id + '_' + output.name}

@@ -19,6 +19,9 @@ import './Flow.css'
 import {ConnectionLine} from "./ConnectionLine";
 import {NodeTypes} from "react-flow-renderer/dist/esm/types";
 import {ButtonEdge} from "./ButtonEdge";
+import {Button, Position} from "@fluentui/react";
+import uuid from "../../utils/uuid";
+import {Blocks} from "./Blocks/Blocks";
 
 
 const flowKey = 'example-flow';
@@ -29,7 +32,7 @@ const nodeTypes: NodeTypes = {
 
 const edgeTypes: EdgeTypes = {
     connectionLine: ConnectionLine,
-    buttonEdge: ButtonEdge
+    buttonEdge: ButtonEdge,
 };
 
 const getTarget = (source, sourceHandle) => {
@@ -38,6 +41,25 @@ const getTarget = (source, sourceHandle) => {
     //TODO: change this if there is more then 1 input.
 
     return endModule.inputs[0].func;
+}
+
+
+
+
+const initialBlock = {
+    id: uuid(),
+    type: 'click',
+    name: '#to be changed',
+    executed: false,
+    inputs: [],
+    outputs: [
+        {
+            name: 'onClick',
+            func: (data) => {
+                console.log('onClick func', data);
+            }
+        }
+    ]
 }
 
 const blocks = [
@@ -159,9 +181,16 @@ const blocks = [
         }],
         outputs: []
     }
-]
+];
 
-const initialNodes = [
+type CLFrowNodeType = {
+    id: string
+    type: 'flowNode',
+    data: any,
+    position: { x: number, y: number }
+}
+
+const initialNodes: CLFrowNodeType = [
     {
         id: blocks[0].id, // connect the nodes to the blocks by id
         type: 'flowNode',
@@ -188,11 +217,9 @@ const initialNodes = [
     },
 ];
 
-const initialEdges = [];
-
 const FlowManager = () => {
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-    const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+    const [edges, setEdges, onEdgesChange] = useEdgesState([]);
     const [rfInstance, setRfInstance] = useState(null);
     const { setViewport } = useReactFlow();
 
@@ -239,6 +266,27 @@ const FlowManager = () => {
         }
     }
 
+    const nodeClickHandler = (e, node) => {
+        const isDeleteTarget = e.target.className = 'nma--flow-node--delete';
+
+        if (isDeleteTarget) {
+            setNodes(nodes.filter(_node => _node.id !== node.id));
+        }
+    }
+
+    const addNodeSelectHandler = (selectedBlock: any) => {
+        console.log('create new from', selectedBlock);
+
+        const newNode = {
+            id: uuid(),
+            type: 'flowNode',
+            data: selectedBlock,
+            position: { x: 100, y: 100 }
+        }
+
+        setNodes((nodes) => [...nodes, newNode]);
+    }
+
     return (
         <div className="nma--flow-editor">
             <div className="nma--flow-editor-flow">
@@ -259,12 +307,18 @@ const FlowManager = () => {
                     defaultEdgeOptions={{ type: "buttonEdge" }}
                     defaultNodesOptions={{ type: 'flowNode' }}
                     onEdgeClick={edgeClickHandler}
+                    onNodeClick={nodeClickHandler}
                 >
                     <MiniMap/>
                     <Controls/>
                     <Background
                         style={{background: "#22323d"}}
                     />
+                    <div className="npm-flow-editor__actions">
+                        <Blocks onSelect={(selectedBlock) => {
+                            addNodeSelectHandler(selectedBlock);
+                        }} />
+                    </div>
                 </ReactFlow>
             </div>
         </div>

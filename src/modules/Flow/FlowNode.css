@@ -100,3 +100,22 @@
     right: 0;
     left: 15px;
 }
+
+.nma--flow-node--delete {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    opacity: 0.5;
+    transition: opacity 0.25s;
+    cursor: pointer;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 15px;
+    width: 15px;
+}
+
+.nma--flow-node--delete:hover {
+    opacity: 1;
+}
