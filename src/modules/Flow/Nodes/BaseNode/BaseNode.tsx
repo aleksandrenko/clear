@@ -15,7 +15,7 @@ export const BaseNode = memo((props) => {
                 {data.inputs.map((input, index) => {
                     return (
                         <Handle
-                            id={id + '_' + input.name + '_' + 'index'}
+                            id={id + '_' + input.name + '_' + index}
                             key={index}
                             type="target"
                             isConnectable

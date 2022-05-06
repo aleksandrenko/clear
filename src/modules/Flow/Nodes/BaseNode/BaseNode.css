@@ -7,7 +7,12 @@
 }
 
 .react-flow__handle {
-    position: relative !important;
+    position: static !important;
+}
+
+.react-flow__handle-right,
+.react-flow__handle-left {
+    transform: none;
 }
 
 .cl-flow__node {
@@ -48,28 +53,28 @@
     display: flex;
     flex-direction: column;
     justify-content: space-around;
-    top: 10px;
+    top: 7px;
     bottom: 4px;
 }
 
 .cl-flow__node__dots-outputs {
     left: auto;
-    right: -4px;
+    right: -5px;
 }
 
 .cl-flow__node__dot {
     background: #fff !important;
-    border: solid 3px #2b4e62 !important;
+    border: solid 2px #2b4e62 !important;
 }
 
 .cl-flow__node__dot-name {
     position: absolute;
     right: 17px;
     white-space: nowrap;
-    font-size: 80%;
+    font-size: 85%;
     opacity: 0.1;
     transition: opacity 0.15s;
-    transform: translateY(-30%);
+    transform: translateY(-35%);
 }
 
 .cl-flow__node:hover .cl-flow__node__dot-name {
