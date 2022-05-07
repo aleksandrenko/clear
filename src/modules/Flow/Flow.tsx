@@ -6,11 +6,10 @@ import ReactFlow, {
     addEdge,
     useNodesState,
     useEdgesState,
-    useReactFlow, EdgeTypes
+    useReactFlow, EdgeTypes, Edge
 } from 'react-flow-renderer';
 
-import {useCallback, useEffect, useState} from "react";
-import {FlowNode} from "./Nodes/FlowNode";
+import {SyntheticEvent, useCallback, useEffect, useState} from "react";
 
 import './Flow.css'
 import {ConnectionLine} from "./Edges/ConnectionLine";
@@ -18,6 +17,7 @@ import {ButtonEdge} from "./Edges/ButtonEdge";
 import uuid from "../../utils/uuid";
 import {Blocks, CLFlowBlockType} from "./Blocks/Blocks";
 import {NODE_TYPES, nodeTypes} from "./Nodes";
+import {Node} from "react-flow-renderer/dist/esm/types/nodes";
 
 const flowKey = 'example-flow';
 
@@ -32,13 +32,6 @@ const getTarget = (source, sourceHandle) => {
     //TODO: change this if there is more then 1 input.
 
     return endModule.inputs[0].func;
-}
-
-type CLFrowNodeType = {
-    id: string
-    type: 'flowNode',
-    block: CLFlowBlockType,
-    position: { x: number, y: number }
 }
 
 const FlowManager = () => {
@@ -83,14 +76,13 @@ const FlowManager = () => {
         restoreFlow();
     }, [setNodes, setViewport]);
 
-    const edgeClickHandler = (e, edge: any) => {
-        const target = e.target;
-        if (target.className === 'edgebutton') {
+    const edgeClickHandler = (e: any, edge: Edge) => {
+        if (e.target.className === 'edgebutton') {
             setEdges(edges.filter(_edge => _edge.id !== edge.id));
         }
     }
 
-    const nodeClickHandler = (e, node) => {
+    const nodeClickHandler = (e: any, node: Node) => {
         const isDeleteTarget = e.target.className === 'cl-flow__node__delete';
 
         if (isDeleteTarget) {

@@ -6,22 +6,23 @@ import {
 } from 'react-flow-renderer';
 
 import './ButtonEdge.css';
-import {
-    ConnectionLineComponent
-} from "react-flow-renderer/dist/esm/types";
+import { ConnectionLineComponent } from "react-flow-renderer/dist/esm/types";
 
 const foreignObjectSize = 40;
 
-export const ButtonEdge: ConnectionLineComponent = ({
-    id,
-    sourceX,
-    sourceY,
-    targetX,
-    targetY,
-    sourcePosition,
-    targetPosition,
-}) =>
-{
+export const ButtonEdge: ConnectionLineComponent = (props) => {
+    const {
+        sourceX,
+        sourceY,
+        targetX,
+        targetY,
+        sourcePosition,
+        targetPosition,
+    } = props;
+
+    // @ts-ignore
+    const id = props.id;
+
     const edgePath = getSimpleBezierPath({
         sourceX,
         sourceY,
@@ -44,9 +45,9 @@ export const ButtonEdge: ConnectionLineComponent = ({
                 id={id}
                 d={edgePath}
                 fill="none"
-                stroke="#666"
+                stroke="#999"
                 strokeWidth={1.5}
-                markerEnd={{ type: MarkerType.ArrowClosed }}
+                markerEnd={MarkerType.ArrowClosed}
             />
             <foreignObject
                 width={foreignObjectSize}

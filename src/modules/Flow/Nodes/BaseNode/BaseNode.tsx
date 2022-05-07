@@ -2,12 +2,12 @@ import React, {memo} from 'react';
 import './BaseNode.css';
 
 import {Handle, Position} from 'react-flow-renderer';
-import {BLOCK_ARGUMENT, CLFlowBlockArgumentType} from "../../Blocks/Blocks";
-import {TextField} from "@fluentui/react";
+import {BLOCK_ARGUMENT, CLFlowBlockArgumentType, CLFlowBlockOutputsType, CLFlowBlockType} from "../../Blocks/Blocks";
+import {Dropdown, TextField} from "@fluentui/react";
 
-export const BaseNode = memo((props) => {
-    console.log('props', props);
-    const { data, id } = props;
+export const BaseNode = memo((props: any) => {
+    const id = props.id;
+    const data = props.data as CLFlowBlockType
 
     return (
         <div className="cl-flow__node">
@@ -36,7 +36,23 @@ export const BaseNode = memo((props) => {
                 <div className="cl-flow__node__args">
                     { data.args?.map((arg: CLFlowBlockArgumentType) => {
                         if (arg.type === BLOCK_ARGUMENT.number) {
-                            return <TextField label={arg.name} defaultValue={arg.defaultValue} />
+                            return <TextField width="100%" label={arg.name} type="number" suffix={arg.suffix} defaultValue={arg.defaultValue as undefined} />
+                        }
+
+                        if (arg.type === BLOCK_ARGUMENT.dropdown) {
+                            return (
+                                <Dropdown label={arg.name || ''} options={arg?.options || []} defaultSelectedKey={arg?.defaultValue as undefined} />
+                            )
+                        }
+
+                        if (arg.type === BLOCK_ARGUMENT.string) {
+                            return <TextField width="100%" label={arg.name} defaultValue={arg.defaultValue as undefined} />
+                        }
+
+                        if (arg.type === BLOCK_ARGUMENT.preview) {
+                            return <pre className="cl-flow__node__args--preview">
+                                { JSON.stringify(arg.value, null, 2) }
+                            </pre>
                         }
 
                         return (
@@ -48,7 +64,7 @@ export const BaseNode = memo((props) => {
             </div>
 
             <div className="cl-flow__node__dots-outputs">
-                {data.outputs.map((output, index) => {
+                {data.outputs.map((output: CLFlowBlockOutputsType, index: number) => {
                     return (
                         <Handle
                             id={id + '_' + output.name + '_' + index}

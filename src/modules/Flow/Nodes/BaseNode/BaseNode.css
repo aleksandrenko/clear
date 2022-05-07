@@ -29,7 +29,7 @@
 
 .cl-flow__node__body {
     border-top: solid 4px #777;
-    padding: 12px 30px 12px 15px;
+    padding: 10px 12px;
     border-top-right-radius: 3px;
     border-top-left-radius: 3px;
     min-width: 150px;
@@ -84,6 +84,18 @@
 .cl-flow__node__dots-outputs .cl-flow__node__dot-name {
     right: 0;
     left: 15px;
+}
+
+.cl-flow__node__args {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.cl-flow__node__args--preview {
+    max-height: 250px;
+    max-width: 300px;
+    overflow: auto;
 }
 
 .cl-flow__node__delete {

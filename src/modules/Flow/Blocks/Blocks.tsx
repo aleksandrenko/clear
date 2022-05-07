@@ -30,13 +30,20 @@ export const BLOCK_COLORS = {
 }
 
 export const BLOCK_ARGUMENT = {
-    number: 'number'
+    number: 'number',
+    dropdown: 'dropdown',
+    string: 'string',
+    preview: 'preview'
 }
 
 export type CLFlowBlockArgumentType = {
-    name: string,
+    name?: string,
     type: string,
-    defaultValue?: string | number | boolean
+    disabled?: boolean,
+    defaultValue?: string | number | boolean | null
+    value?: any,
+    suffix?: string,
+    options?: any[]
 }
 
 export type CLFlowBlockType = {
@@ -53,6 +60,27 @@ export type CLFlowBlockType = {
 const Event: CLFlowBlockType = {
     type: 'Event',
     color: BLOCK_COLORS.blue,
+    args: [
+        {
+            type: BLOCK_ARGUMENT.dropdown,
+            defaultValue: 'onClick',
+            options: [
+                { key: 'onClick', text: 'onClick' },
+                { key: 'onChange', text: 'onChange' },
+                { key: 'onSubmit', text: 'onSubmit' }
+                //other dom events
+            ]
+        },
+        {
+            type: BLOCK_ARGUMENT.dropdown,
+            defaultValue: '#btn_1',
+            options: [
+                { key: '#btn_1', text: '#btn_1' },
+                { key: '#submit_form1_btn', text: '#submit_form1_btn' },
+                //other dom events
+            ]
+        }
+    ],
     inputs: [],
     outputs: [
         {
@@ -68,8 +96,8 @@ const Timer: CLFlowBlockType = {
     type: 'Timer',
     color: BLOCK_COLORS.blue,
     args: [{
-        name: 'Interval (ms)',
         type: BLOCK_ARGUMENT.number,
+        suffix: 'ms',
         defaultValue: 500
     }],
     nodeType: NODE_TYPES.baseNode,
@@ -88,6 +116,10 @@ const Timer: CLFlowBlockType = {
 const Constant: CLFlowBlockType = {
     type: 'Constant',
     color: BLOCK_COLORS.blue,
+    args: [{
+        type: BLOCK_ARGUMENT.string,
+        defaultValue: ''
+    }],
     inputs: [],
     outputs: [
         {
@@ -102,6 +134,11 @@ const Constant: CLFlowBlockType = {
 const Delay: CLFlowBlockType = {
     type: 'Delay',
     color: BLOCK_COLORS.teal,
+    args: [{
+        type: BLOCK_ARGUMENT.number,
+        suffix: 'ms',
+        defaultValue: 500
+    }],
     inputs: [
         {
             name: 'Input',
@@ -220,6 +257,20 @@ const Filter: CLFlowBlockType = {
 const Conditional: CLFlowBlockType = {
     type: 'Conditional',
     color: BLOCK_COLORS.magenta,
+    args: [
+        {
+            type: BLOCK_ARGUMENT.dropdown,
+            defaultValue: '===',
+            options: [
+                { key: '===', text: 'equal' },
+                { key: '!==', text: 'equal' },
+                { key: '>', text: '>' },
+                { key: '>=', text: '>=' },
+                { key: '<', text: '<' },
+                { key: '<=', text: '<=' }
+            ]
+        }
+    ],
     inputs: [
         {
             name: 'Input',
@@ -248,10 +299,20 @@ const Conditional: CLFlowBlockType = {
 const Mutation = {
     type: 'Mutation',
     color: BLOCK_COLORS.orange,
+    args: [
+        {
+            type: BLOCK_ARGUMENT.dropdown,
+            defaultValue: '',
+            options: [
+                { key: 'store.user.firstname', text: 'store.user.firstname' },
+                { key: 'store.user.lastname', text: 'store.user.lastname' }
+            ]
+        }
+    ],
     inputs: [
         {
             name: 'Data',
-            func: (data) => {
+            func: (data: any) => {
                 console.log('onClick func', data);
             }
         }
@@ -265,7 +326,7 @@ const EventDispatch = {
     inputs: [
         {
             name: 'Data',
-            func: (data) => {
+            func: (data: any) => {
                 console.log('onClick func', data);
             }
         }
@@ -276,6 +337,14 @@ const EventDispatch = {
 const Log: CLFlowBlockType = {
     type: 'Log',
     color: BLOCK_COLORS.orange,
+    args: [{
+        type: BLOCK_ARGUMENT.preview,
+        value: {
+            example: true,
+            data: [],
+            todo: 'this data should come from the input func'
+        }
+    }],
     inputs: [
         {
             name: 'Input',
@@ -296,7 +365,7 @@ export const Blocks = ({ onSelect }: BlocksSelector) => {
     const menuProps = useConst<IContextualMenuProps>(() => ({
         shouldFocusOnMount: true,
         onItemClick: (e, item) => {
-            onSelect(item.block)
+            onSelect(item?.block as CLFlowBlockType)
         },
         items: [
             { key: 'inputs_divider', itemType: ContextualMenuItemType.Divider },
