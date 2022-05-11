@@ -96,6 +96,7 @@ const Event: CLFlowBlockType = {
             id: uuid(),
             func: (data) => {
                 console.log('onClick func', data);
+                return data + "_clicked_";
             }
         }
     ]
@@ -184,7 +185,8 @@ const Delay: CLFlowBlockType = {
             name: 'Input',
             id: uuid(),
             func: (data) => {
-                console.log('onClick func', data);
+                console.log('Delay input func', data);
+                return data + "_delayed_";
             }
         }
     ],
@@ -193,7 +195,7 @@ const Delay: CLFlowBlockType = {
             name: 'Output',
             id: uuid(),
             func: (data) => {
-                console.log('onClick func', data);
+                console.log('Delay output func', data);
             }
         }
     ]

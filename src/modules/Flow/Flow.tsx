@@ -81,7 +81,6 @@ const FlowManager = () => {
             }
 
             const flow = JSON.parse(localStorage.getItem(flowKey), reviver);
-            console.log(flow);
 
             if (flow) {
                 const { x = 0, y = 0, zoom = 1 } = flow.viewport;
@@ -142,20 +141,23 @@ const FlowManager = () => {
             }
 
             const startOutput = startNode?.data.outputs.find((output: CLFlowBlockOutputsType) => edge.sourceHandle === output.id);
-            const endOutput = endNode?.data.inputs.find((input: CLFlowBlockInputsType) => edge.targetHandle === input.id);
+            const endInput = endNode?.data.inputs.find((input: CLFlowBlockInputsType) => edge.targetHandle === input.id);
 
-            if (!startOutput || !endOutput) {
+            if (!startOutput || !endInput) {
                 console.error('Manual Run: No starting or ending functions found for an edge.', edge);
             }
 
             const startFunction = startOutput.func;
-            const endFunction = startOutput.func;
+            const endFunction = endInput.func;
 
             if (!startFunction || !endFunction) {
                 console.error('Manual Run: The starting or/end ending functions the edge are not found.', edge);
             }
 
-            console.log('startFunction', startFunction, endFunction);
+            const startValue = startFunction("execute");
+            const endResult = endFunction(startValue);
+
+            console.log("end of edge value to be passed to the next", endResult);
         }
 
         executeEdge(startEdge);

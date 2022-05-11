@@ -13,23 +13,12 @@
      justify-content: center;
      font-size: 12px;
      transition: opacity 0.3s;
-     transform: translate(-50%, -50%);
-     margin-top: 2px;
-     margin-left: 2px;
+     top: 10px;
+     left: 10px;
     opacity: 0.3;
 }
 
 .edgebutton:hover {
     box-shadow: 0 0 6px 2px rgba(0, 0, 0, 0.08);
     opacity: 1;
-}
-
-.edgebutton-foreignobject body {
-    background: transparent;
-    width: 40px;
-    height: 40px;
-    min-height: 40px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }

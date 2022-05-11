@@ -6,9 +6,7 @@ import LibComponentsSelectModal from "./components/LibComponentsSelectModal";
 import {
     Breadcrumb,
     Button,
-    Checkbox,
     IBreadcrumbItem,
-    Icon,
     initializeIcons,
     Pivot,
     PivotItem,
