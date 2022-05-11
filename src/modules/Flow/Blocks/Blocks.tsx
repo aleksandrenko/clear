@@ -7,17 +7,20 @@ import {
     IContextualMenuProps,
 } from "@fluentui/react";
 import {NODE_TYPES} from "../Nodes";
+import uuid from "../../../utils/uuid";
 
 //inspiration ideas, naming
 //https://rxjs.dev/guide/operators#multicasting-operators
 
 export type CLFlowBlockInputsType = {
     name: string,
+    id: string,
     func: (data: any) => any
 }
 
 export type CLFlowBlockOutputsType = {
     name: string,
+    id: string,
     func: (data: any) => any
 }
 
@@ -33,7 +36,8 @@ export const BLOCK_ARGUMENT = {
     number: 'number',
     dropdown: 'dropdown',
     string: 'string',
-    preview: 'preview'
+    preview: 'preview',
+    picker: 'picker'
 }
 
 export type CLFlowBlockArgumentType = {
@@ -48,6 +52,7 @@ export type CLFlowBlockArgumentType = {
 
 export type CLFlowBlockType = {
     type: string,
+    isRunnable?: boolean,
     color?: string,
     nodeType?: string,
     description?: string,
@@ -59,6 +64,7 @@ export type CLFlowBlockType = {
 // Inputs (start blocks)
 const Event: CLFlowBlockType = {
     type: 'Event',
+    isRunnable: true,
     color: BLOCK_COLORS.blue,
     args: [
         {
@@ -67,7 +73,9 @@ const Event: CLFlowBlockType = {
             options: [
                 { key: 'onClick', text: 'onClick' },
                 { key: 'onChange', text: 'onChange' },
-                { key: 'onSubmit', text: 'onSubmit' }
+                { key: 'onEnter', text: 'onEnter' },
+                { key: 'onExit', text: 'onEnter' },
+                { key: 'onPropChange', text: 'onPropChange' },
                 //other dom events
             ]
         },
@@ -75,8 +83,8 @@ const Event: CLFlowBlockType = {
             type: BLOCK_ARGUMENT.dropdown,
             defaultValue: '#btn_1',
             options: [
-                { key: '#btn_1', text: '#btn_1' },
-                { key: '#submit_form1_btn', text: '#submit_form1_btn' },
+                { key: 'btn_1', text: '#btn_1' },
+                { key: 'submit_form1_btn', text: '#submit_form1_btn' },
                 //other dom events
             ]
         }
@@ -85,6 +93,7 @@ const Event: CLFlowBlockType = {
     outputs: [
         {
             name: 'onClick',
+            id: uuid(),
             func: (data) => {
                 console.log('onClick func', data);
             }
@@ -105,8 +114,11 @@ const Timer: CLFlowBlockType = {
     outputs: [
         {
             name: 'Output',
+            id: uuid(),
             func: (data) => {
-                console.log('onClick func', data);
+                setInterval(() => {
+                    console.log('ddd');
+                }, 500);
             }
         }
     ]
@@ -124,6 +136,34 @@ const Constant: CLFlowBlockType = {
     outputs: [
         {
             name: 'Output',
+            id: uuid(),
+            func: (data) => {
+                console.log('onClick func', data);
+            }
+        }
+    ]
+}
+
+// Other
+const StateValue: CLFlowBlockType = {
+    type: 'State Value',
+    color: BLOCK_COLORS.blue,
+    args: [
+        {
+            type: BLOCK_ARGUMENT.dropdown,
+            defaultValue: '',
+            options: [
+                { key: 'state.something', text: 'state.something' },
+                { key: 'state.something.else', text: 'state.something.else' },
+                { key: 'state.something.something', text: 'state.something.something' },
+            ]
+        }
+    ],
+    inputs: [],
+    outputs: [
+        {
+            name: 'Output',
+            id: uuid(),
             func: (data) => {
                 console.log('onClick func', data);
             }
@@ -142,6 +182,7 @@ const Delay: CLFlowBlockType = {
     inputs: [
         {
             name: 'Input',
+            id: uuid(),
             func: (data) => {
                 console.log('onClick func', data);
             }
@@ -150,6 +191,7 @@ const Delay: CLFlowBlockType = {
     outputs: [
         {
             name: 'Output',
+            id: uuid(),
             func: (data) => {
                 console.log('onClick func', data);
             }
@@ -164,6 +206,7 @@ const HTTPRequest: CLFlowBlockType = {
     inputs: [
         {
             name: 'Iutput',
+            id: uuid(),
             func: (data) => {
                 console.log('onClick func', data);
             }
@@ -172,12 +215,43 @@ const HTTPRequest: CLFlowBlockType = {
     outputs: [
         {
             name: 'onSuccess',
+            id: uuid(),
             func: (data) => {
                 console.log('onClick func', data);
             }
         },
         {
             name: 'onError',
+            id: uuid(),
+            func: (data) => {
+                console.log('onClick func', data);
+            }
+        }
+    ]
+}
+
+const Pluck: CLFlowBlockType = {
+    type: 'Pluck',
+    color: BLOCK_COLORS.magenta,
+    args: [
+        {
+            type: BLOCK_ARGUMENT.picker,
+            defaultValue: '',
+        }
+    ],
+    inputs: [
+        {
+            name: 'Input',
+            id: uuid(),
+            func: (data) => {
+                console.log('onClick func', data);
+            }
+        }
+    ],
+    outputs: [
+        {
+            name: 'Output',
+            id: uuid(),
             func: (data) => {
                 console.log('onClick func', data);
             }
@@ -188,9 +262,21 @@ const HTTPRequest: CLFlowBlockType = {
 const Transform: CLFlowBlockType = {
     type: 'Transform',
     color: BLOCK_COLORS.magenta,
+    args: [
+        {
+            type: BLOCK_ARGUMENT.dropdown,
+            defaultValue: '',
+            options: [
+                { key: 'state.something', text: 'state.something' },
+                { key: 'state.something.else', text: 'state.something.else' },
+                { key: 'state.something.something', text: 'state.something.something' },
+            ]
+        }
+    ],
     inputs: [
     {
         name: 'Input',
+        id: uuid(),
         func: (data) => {
             console.log('onClick func', data);
         }
@@ -199,6 +285,7 @@ const Transform: CLFlowBlockType = {
         outputs: [
         {
             name: 'Output',
+            id: uuid(),
             func: (data) => {
                 console.log('onClick func', data);
             }
@@ -212,12 +299,7 @@ const Join: CLFlowBlockType = {
     inputs: [
         {
             name: 'Input',
-            func: (data) => {
-                console.log('onClick func', data);
-            }
-        },
-        {
-            name: 'Input',
+            id: uuid(),
             func: (data) => {
                 console.log('onClick func', data);
             }
@@ -226,6 +308,7 @@ const Join: CLFlowBlockType = {
     outputs: [
         {
             name: 'Output',
+            id: uuid(),
             func: (data) => {
                 console.log('onClick func', data);
             }
@@ -239,6 +322,7 @@ const Filter: CLFlowBlockType = {
     inputs: [
         {
             name: 'Input',
+            id: uuid(),
             func: (data) => {
                 console.log('onClick func', data);
             }
@@ -247,6 +331,7 @@ const Filter: CLFlowBlockType = {
     outputs: [
         {
             name: 'Output',
+            id: uuid(),
             func: (data) => {
                 console.log('onClick func', data);
             }
@@ -274,12 +359,14 @@ const Conditional: CLFlowBlockType = {
     inputs: [
         {
             name: 'Input',
+            id: uuid(),
             func: (data) => {
                 console.log('onClick func', data);
             }
         },
         {
             name: 'Input',
+            id: uuid(),
             func: (data) => {
                 console.log('onClick func', data);
             }
@@ -288,6 +375,7 @@ const Conditional: CLFlowBlockType = {
     outputs: [
         {
             name: 'Output',
+            id: uuid(),
             func: (data) => {
                 console.log('onClick func', data);
             }
@@ -312,6 +400,7 @@ const Mutation = {
     inputs: [
         {
             name: 'Data',
+            id: uuid(),
             func: (data: any) => {
                 console.log('onClick func', data);
             }
@@ -326,6 +415,7 @@ const EventDispatch = {
     inputs: [
         {
             name: 'Data',
+            id: uuid(),
             func: (data: any) => {
                 console.log('onClick func', data);
             }
@@ -348,6 +438,7 @@ const Log: CLFlowBlockType = {
     inputs: [
         {
             name: 'Input',
+            id: uuid(),
             func: (data) => {
                 console.log(data);
                 return data;
@@ -370,9 +461,10 @@ export const Blocks = ({ onSelect }: BlocksSelector) => {
         items: [
             { key: 'inputs_divider', itemType: ContextualMenuItemType.Divider },
             { key: 'input', text: 'Inputs (out)', itemType: ContextualMenuItemType.Header },
-            { key: 'event', text: 'Dom Event', block: Event },
+            { key: 'event', text: 'Events', block: Event },
             { key: 'timer', text: 'Timer', block: Timer },
             { key: 'constant', text: 'Constant', block: Constant },
+            { key: 'state_value', text: 'State Value', block: StateValue },
 
             { key: 'inputs_others', itemType: ContextualMenuItemType.Divider },
             { key: 'other', text: 'Others (in/out)', itemType: ContextualMenuItemType.Header },
@@ -381,6 +473,7 @@ export const Blocks = ({ onSelect }: BlocksSelector) => {
             { key: 'inputs_process', itemType: ContextualMenuItemType.Divider },
             { key: 'process', text: 'Process (in/out)', itemType: ContextualMenuItemType.Header },
             { key: 'httpRequest', text: 'HTTPRequest', block: HTTPRequest },
+            { key: 'pluck', text: 'Pluck', block: Pluck },
             { key: 'transform', text: 'Transform', block: Transform },
             { key: 'join', text: 'Join', block: Join },
             { key: 'filter', text: 'Filter', block: Filter },
@@ -397,6 +490,6 @@ export const Blocks = ({ onSelect }: BlocksSelector) => {
 
     //TODO: filter the available blocks based on context - only inputs or no inputs
     return (
-        <DefaultButton text="New Node" menuProps={menuProps} />
+        <DefaultButton text="Add Function" menuProps={menuProps} />
     );
 }

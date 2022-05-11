@@ -3,11 +3,11 @@ import './BaseNode.css';
 
 import {Handle, Position} from 'react-flow-renderer';
 import {BLOCK_ARGUMENT, CLFlowBlockArgumentType, CLFlowBlockOutputsType, CLFlowBlockType} from "../../Blocks/Blocks";
-import {Dropdown, TextField} from "@fluentui/react";
+import {Dropdown, TagPicker, TextField} from "@fluentui/react";
 
 export const BaseNode = memo((props: any) => {
     const id = props.id;
-    const data = props.data as CLFlowBlockType
+    const data = props.data as CLFlowBlockType;
 
     return (
         <div className="cl-flow__node">
@@ -15,7 +15,7 @@ export const BaseNode = memo((props: any) => {
                 {data.inputs.map((input, index) => {
                     return (
                         <Handle
-                            id={id + '_' + input.name + '_' + index}
+                            id={input.id}
                             key={index}
                             type="target"
                             isConnectable
@@ -34,29 +34,34 @@ export const BaseNode = memo((props: any) => {
                 <div className="cl-flow__node__type">{data.type}</div>
                 <div className="cl-flow__node__description">{data.description}</div>
                 <div className="cl-flow__node__args">
-                    { data.args?.map((arg: CLFlowBlockArgumentType) => {
+                    { data.args?.map((arg: CLFlowBlockArgumentType, index) => {
                         if (arg.type === BLOCK_ARGUMENT.number) {
-                            return <TextField width="100%" label={arg.name} type="number" suffix={arg.suffix} defaultValue={arg.defaultValue as undefined} />
+                            return <TextField key={index} width="100%" label={arg.name} type="number" suffix={arg.suffix} defaultValue={arg.defaultValue as undefined} />
                         }
 
                         if (arg.type === BLOCK_ARGUMENT.dropdown) {
                             return (
-                                <Dropdown label={arg.name || ''} options={arg?.options || []} defaultSelectedKey={arg?.defaultValue as undefined} />
+                                <Dropdown key={index} label={arg.name || ''} options={arg?.options || []} defaultSelectedKey={arg?.defaultValue as undefined} />
                             )
                         }
 
                         if (arg.type === BLOCK_ARGUMENT.string) {
-                            return <TextField width="100%" label={arg.name} defaultValue={arg.defaultValue as undefined} />
+                            return <TextField key={index} width="100%" label={arg.name} defaultValue={arg.defaultValue as undefined} />
+                        }
+
+                        if (arg.type === BLOCK_ARGUMENT.picker) {
+                            return <TextField key={index} width="100%" label={arg.name} placeholder="Keys to pluck separated by a comma" defaultValue={arg.defaultValue as undefined} />
+
                         }
 
                         if (arg.type === BLOCK_ARGUMENT.preview) {
-                            return <pre className="cl-flow__node__args--preview">
+                            return <pre key={index} className="cl-flow__node__args--preview">
                                 { JSON.stringify(arg.value, null, 2) }
                             </pre>
                         }
 
                         return (
-                            <div>{ JSON.stringify(arg) }</div>
+                            <div key={index}>{ JSON.stringify(arg) }</div>
                         )
                     }) }
                 </div>
@@ -67,7 +72,7 @@ export const BaseNode = memo((props: any) => {
                 {data.outputs.map((output: CLFlowBlockOutputsType, index: number) => {
                     return (
                         <Handle
-                            id={id + '_' + output.name + '_' + index}
+                            id={output.id}
                             key={index}
                             type="source"
                             isConnectable
