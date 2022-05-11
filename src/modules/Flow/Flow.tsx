@@ -135,7 +135,7 @@ const FlowManager = () => {
             const endFunction = startOutput.func;
 
             if (!startFunction || !endFunction) {
-                console.error('Manual Run: The starting or/end ending functions the edger are not found..', edge);
+                console.error('Manual Run: The starting or/end ending functions the edge are not found.', edge);
             }
         }
 

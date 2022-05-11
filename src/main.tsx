@@ -1,10 +1,10 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import Router from './Router';
 import ErrorBoundary from "./components/ErrorBoundry/ErrorBoundly";
 import {initializeIcons} from "@fluentui/react";
-import ReactDOM from "react-dom/client";
 
-const domAppElement = document.getElementById('root') as HTMLElement;
+const domAppElement = document.getElementById('root');
 
 initializeIcons();
 
@@ -18,5 +18,4 @@ const AppWrapped = () => {
     )
 }
 
-const root = ReactDOM.createRoot(domAppElement);
-root.render(<AppWrapped />);
+ReactDOM.render(<AppWrapped />, domAppElement);
