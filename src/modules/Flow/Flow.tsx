@@ -58,13 +58,30 @@ const FlowManager = () => {
     const save = useCallback(() => {
         if (rfInstance) {
             const flow = rfInstance.toObject();
-            localStorage.setItem(flowKey, JSON.stringify(flow));
+            const replacerFn = (key: string, val: any) => {
+                return (typeof val === 'function')
+                    ? val.toString().replace(/(\r\n|\n|\r)/gm, "")
+                    : val
+            };
+
+            localStorage.setItem(flowKey, JSON.stringify(flow, replacerFn));
         }
     }, [rfInstance]);
 
     const restore = useCallback(() => {
         const restoreFlow = async () => {
-            const flow = JSON.parse(localStorage.getItem(flowKey));
+            const reviver = (key: string, value: string) => {
+                if (key === 'func') {
+                    const wrapperFunction = new Function("return " + value);
+                    const storedFunction = wrapperFunction();
+                    return storedFunction;
+                }
+
+                return value;
+            }
+
+            const flow = JSON.parse(localStorage.getItem(flowKey), reviver);
+            console.log(flow);
 
             if (flow) {
                 const { x = 0, y = 0, zoom = 1 } = flow.viewport;
@@ -137,6 +154,8 @@ const FlowManager = () => {
             if (!startFunction || !endFunction) {
                 console.error('Manual Run: The starting or/end ending functions the edge are not found.', edge);
             }
+
+            console.log('startFunction', startFunction, endFunction);
         }
 
         executeEdge(startEdge);
