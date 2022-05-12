@@ -6,11 +6,15 @@ import {BLOCK_ARGUMENT, CLFlowBlockArgumentType, CLFlowBlockOutputsType, CLFlowB
 import {Dropdown, TagPicker, TextField} from "@fluentui/react";
 
 export const BaseNode = memo((props: any) => {
-    const id = props.id;
     const data = props.data as CLFlowBlockType;
 
+    const nodeClassNames = ['cl-flow__node'];
+    if (data.highlighted) {
+        nodeClassNames.push('cl-flow__node--highlighted');
+    }
+
     return (
-        <div className="cl-flow__node">
+        <div className={nodeClassNames.join(' ')}>
             <div className="cl-flow__node__dots-inputs">
                 {data.inputs.map((input, index) => {
                     return (
@@ -31,6 +35,7 @@ export const BaseNode = memo((props: any) => {
             <div className="cl-flow__node__body" style={{
                 borderColor: data.color || ''
             }}>
+                <div className="cl-flow__node__progress"  style={{ backgroundColor: data.color || '' }} />
                 <div className="cl-flow__node__type">{data.type}</div>
                 <div className="cl-flow__node__description">{data.description}</div>
                 <div className="cl-flow__node__args">

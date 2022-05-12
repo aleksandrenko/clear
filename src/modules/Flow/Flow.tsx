@@ -118,6 +118,45 @@ const FlowManager = () => {
         setNodes((nodes) => [...nodes, newNode]);
     }
 
+    const highlightNode = (nodeToHighlight: Node) => {
+
+        setNodes((nodes) => {
+            const newNodes = nodes.map((node) => {
+                if (node.id === nodeToHighlight.id) {
+                    return {
+                        ...node,
+                        data: {
+                            ...node.data,
+                            highlighted: true
+                        }
+                    }
+                }
+
+                return node;
+            })
+
+            return newNodes;
+        });
+
+        setTimeout(() => {
+            const newNodes = nodes.map((node) => {
+                if (node.id === nodeToHighlight.id) {
+                    return {
+                        ...node,
+                        data: {
+                            ...node.data,
+                            highlighted: false
+                        }
+                    }
+                }
+
+                return node;
+            })
+
+            setNodes(newNodes);
+        }, 1500);
+    }
+
     const manualRun = (nodes: Node[], edges: Edge[]) => {
         // console.log(nodes, edges);
         const startNode = nodes.filter(node => node.data.isRunnable)[0];
@@ -126,19 +165,23 @@ const FlowManager = () => {
             return;
         }
 
-        const startEdge = edges.filter((edge) => edge.source === startNode.id)[0];
-        if (!startEdge) {
+        const startEdges = edges.filter((edge) => edge.source === startNode.id);
+
+        if (!startEdges || !startEdges.length) {
             console.error('Manual Run: No edge found to the starting node.');
             return;
         }
 
-        const executeEdge = (edge: Edge) => {
+        const executeEdge = (edge: Edge, initialValue: any) => {
             const startNode = nodes.find(node => node.id === edge.source);
             const endNode = nodes.find(node => node.id === edge.target);
 
             if (!startNode || !endNode) {
                 console.error('Manual Run: No starting or ending node found for an edge.', edge);
             }
+
+            highlightNode(startNode);
+            highlightNode(endNode);
 
             const startOutput = startNode?.data.outputs.find((output: CLFlowBlockOutputsType) => edge.sourceHandle === output.id);
             const endInput = endNode?.data.inputs.find((input: CLFlowBlockInputsType) => edge.targetHandle === input.id);
@@ -154,13 +197,21 @@ const FlowManager = () => {
                 console.error('Manual Run: The starting or/end ending functions the edge are not found.', edge);
             }
 
-            const startValue = startFunction("execute");
+            const startValue = startFunction(initialValue);
             const endResult = endFunction(startValue);
+
+            //when done with the function pass the data to the endNode outgoing edges
+            const endNodeOutgoingEdges = edges.filter((edge) => edge.source === endNode?.id);
+            executeEdges(endNodeOutgoingEdges, endResult);
 
             console.log("end of edge value to be passed to the next", endResult);
         }
 
-        executeEdge(startEdge);
+        const executeEdges = (edges: Edge[], initialValue: any) => {
+            edges.forEach((startEdge) => executeEdge(startEdge, initialValue));
+        }
+
+        executeEdges(startEdges, "start");
     }
 
     return (

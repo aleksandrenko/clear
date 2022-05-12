@@ -22,9 +22,10 @@
     border-radius: 5px;
     background: #fff;
 
-    transition: border 0.15s;
+    transition: box-shadow 0.15s;
     border: 1px solid rgb(138, 136, 134);
     border-bottom-width: 2px;
+
 }
 
 .cl-flow__node__body {
@@ -35,6 +36,20 @@
     min-width: 150px;
     transition: box-shadow 0.15s;
     position: relative;
+}
+
+.cl-flow__node__progress {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    opacity: 0;
+    transition: opacity 0.25s;
+}
+
+.cl-flow__node--highlighted .cl-flow__node__progress {
+    opacity: 0.25;
 }
 
 .cl-flow__node__type {

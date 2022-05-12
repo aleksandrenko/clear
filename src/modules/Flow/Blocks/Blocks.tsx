@@ -53,6 +53,7 @@ export type CLFlowBlockArgumentType = {
 export type CLFlowBlockType = {
     type: string,
     isRunnable?: boolean,
+    highlighted?: boolean,
     color?: string,
     nodeType?: string,
     description?: string,
@@ -65,6 +66,7 @@ export type CLFlowBlockType = {
 const Event: CLFlowBlockType = {
     type: 'Event',
     isRunnable: true,
+    highlighted: false,
     color: BLOCK_COLORS.blue,
     args: [
         {
@@ -196,6 +198,7 @@ const Delay: CLFlowBlockType = {
             id: uuid(),
             func: (data) => {
                 console.log('Delay output func', data);
+                return data;
             }
         }
     ]
