@@ -19,6 +19,7 @@ import {Blocks, CLFlowBlockInputsType, CLFlowBlockOutputsType, CLFlowBlockType} 
 import {NODE_TYPES, nodeTypes} from "./Nodes";
 import {Node} from "react-flow-renderer/dist/esm/types/nodes";
 import {DefaultButton, PrimaryButton} from "@fluentui/react";
+import {isPromise} from "../../utils/isPromise";
 
 const flowKey = 'example-flow';
 
@@ -154,11 +155,10 @@ const FlowManager = () => {
             })
 
             setNodes(newNodes);
-        }, 1500);
+        }, 2000);
     }
 
     const manualRun = (nodes: Node[], edges: Edge[]) => {
-        // console.log(nodes, edges);
         const startNode = nodes.filter(node => node.data.isRunnable)[0];
         if (!startNode) {
             console.error('Manual Run: No runnable node found.');
@@ -172,7 +172,7 @@ const FlowManager = () => {
             return;
         }
 
-        const executeEdge = (edge: Edge, initialValue: any) => {
+        const executeEdge = async (edge: Edge, initialValue: any) => {
             const startNode = nodes.find(node => node.id === edge.source);
             const endNode = nodes.find(node => node.id === edge.target);
 
@@ -197,14 +197,26 @@ const FlowManager = () => {
                 console.error('Manual Run: The starting or/end ending functions the edge are not found.', edge);
             }
 
-            const startValue = startFunction(initialValue);
-            const endResult = endFunction(startValue);
+            //Get the value from a wrapped promise or raw
+            const unwrappedStartValue = await initialValue;
+
+            const startValue = await startFunction(unwrappedStartValue);
+            const endResultOriginal = await endFunction(startValue);
+
+            const endResult = new Promise((resolve, reject) => {
+                try {
+                    resolve(endResultOriginal);
+                } catch (error) {
+                    console.error("Edge execution fails", error, edge);
+                }
+            });
 
             //when done with the function pass the data to the endNode outgoing edges
             const endNodeOutgoingEdges = edges.filter((edge) => edge.source === endNode?.id);
             executeEdges(endNodeOutgoingEdges, endResult);
 
-            console.log("end of edge value to be passed to the next", endResult);
+            //TODO: complete the block functions
+            //TODO: try implement the delay block correctly
         }
 
         const executeEdges = (edges: Edge[], initialValue: any) => {
