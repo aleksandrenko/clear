@@ -15,7 +15,7 @@ import uuid from "../../../utils/uuid";
 export type CLFlowBlockInputsType = {
     name: string,
     id: string,
-    func: (data: any) => any
+    func: (data: any, args: { [key: string]: any }) => any
 }
 
 export type CLFlowBlockOutputsType = {
@@ -41,11 +41,8 @@ export const BLOCK_ARGUMENT = {
 }
 
 export type CLFlowBlockArgumentType = {
-    name?: string,
     type: string,
-    disabled?: boolean,
-    defaultValue?: string | number | boolean | null
-    value?: any,
+    value: any,
     suffix?: string,
     options?: any[]
 }
@@ -57,7 +54,7 @@ export type CLFlowBlockType = {
     color?: string,
     nodeType?: string,
     description?: string,
-    args?: CLFlowBlockArgumentType[],
+    args: { [key: string]: CLFlowBlockArgumentType },
     inputs: CLFlowBlockInputsType[],
     outputs: CLFlowBlockOutputsType[]
 }
@@ -68,10 +65,10 @@ const Event: CLFlowBlockType = {
     isRunnable: true,
     highlighted: false,
     color: BLOCK_COLORS.blue,
-    args: [
-        {
+    args: {
+        event: {
             type: BLOCK_ARGUMENT.dropdown,
-            defaultValue: 'onClick',
+            value: 'onClick',
             options: [
                 { key: 'onClick', text: 'onClick' },
                 { key: 'onChange', text: 'onChange' },
@@ -81,16 +78,16 @@ const Event: CLFlowBlockType = {
                 //other dom events
             ]
         },
-        {
+        target: {
             type: BLOCK_ARGUMENT.dropdown,
-            defaultValue: '#btn_1',
+            value: '#btn_1',
             options: [
                 { key: 'btn_1', text: '#btn_1' },
                 { key: 'submit_form1_btn', text: '#submit_form1_btn' },
                 //other dom events
             ]
         }
-    ],
+    },
     inputs: [],
     outputs: [
         {
@@ -104,91 +101,100 @@ const Event: CLFlowBlockType = {
     ]
 }
 
-const Timer: CLFlowBlockType = {
-    type: 'Timer',
-    color: BLOCK_COLORS.blue,
-    args: [{
-        type: BLOCK_ARGUMENT.number,
-        suffix: 'ms',
-        defaultValue: 500
-    }],
-    nodeType: NODE_TYPES.baseNode,
-    inputs: [],
-    outputs: [
-        {
-            name: 'Output',
-            id: uuid(),
-            func: (data) => {
-                setInterval(() => {
-                    console.log('ddd');
-                }, 500);
-            }
-        }
-    ]
-}
+// const Timer: CLFlowBlockType = {
+//     type: 'Timer',
+//     color: BLOCK_COLORS.blue,
+//     args: [{
+//         key: 'timer',
+//         type: BLOCK_ARGUMENT.number,
+//         suffix: 'ms',
+//         value: 500
+//     }],
+//     nodeType: NODE_TYPES.baseNode,
+//     inputs: [],
+//     outputs: [
+//         {
+//             name: 'Output',
+//             id: uuid(),
+//             func: (data) => {
+//                 setInterval(() => {
+//                     console.log('ddd');
+//                 }, 500);
+//             }
+//         }
+//     ]
+// }
 
 // Other
-const Constant: CLFlowBlockType = {
-    type: 'Constant',
-    color: BLOCK_COLORS.blue,
-    args: [{
-        type: BLOCK_ARGUMENT.string,
-        defaultValue: ''
-    }],
-    inputs: [],
-    outputs: [
-        {
-            name: 'Output',
-            id: uuid(),
-            func: (data) => {
-                console.log('onClick func', data);
-            }
-        }
-    ]
-}
+// const Constant: CLFlowBlockType = {
+//     type: 'Constant',
+//     color: BLOCK_COLORS.blue,
+//     args: [{
+//         key: 'comparison',
+//         type: BLOCK_ARGUMENT.string,
+//         value: ''
+//     }],
+//     inputs: [],
+//     outputs: [
+//         {
+//             name: 'Output',
+//             id: uuid(),
+//             func: (data) => {
+//                 console.log('onClick func', data);
+//             }
+//         }
+//     ]
+// }
 
 // Other
-const StateValue: CLFlowBlockType = {
-    type: 'State Value',
-    color: BLOCK_COLORS.blue,
-    args: [
-        {
-            type: BLOCK_ARGUMENT.dropdown,
-            defaultValue: '',
-            options: [
-                { key: 'state.something', text: 'state.something' },
-                { key: 'state.something.else', text: 'state.something.else' },
-                { key: 'state.something.something', text: 'state.something.something' },
-            ]
-        }
-    ],
-    inputs: [],
-    outputs: [
-        {
-            name: 'Output',
-            id: uuid(),
-            func: (data) => {
-                console.log('onClick func', data);
-            }
-        }
-    ]
-}
+// const StateValue: CLFlowBlockType = {
+//     type: 'State Value',
+//     color: BLOCK_COLORS.blue,
+//     args: [
+//         {
+//             key: 'state_value',
+//             type: BLOCK_ARGUMENT.dropdown,
+//             value: '',
+//             options: [
+//                 { key: 'state.something', text: 'state.something' },
+//                 { key: 'state.something.else', text: 'state.something.else' },
+//                 { key: 'state.something.something', text: 'state.something.something' },
+//             ]
+//         }
+//     ],
+//     inputs: [],
+//     outputs: [
+//         {
+//             name: 'Output',
+//             id: uuid(),
+//             func: (data) => {
+//                 console.log('onClick func', data);
+//             }
+//         }
+//     ]
+// }
 
 const Delay: CLFlowBlockType = {
     type: 'Delay',
     color: BLOCK_COLORS.teal,
-    args: [{
-        type: BLOCK_ARGUMENT.number,
-        suffix: 'ms',
-        defaultValue: 500
-    }],
+    args: {
+        delay: {
+            type: BLOCK_ARGUMENT.number,
+            suffix: 'ms',
+            value: 500
+        }
+    },
     inputs: [
         {
             name: 'Input',
             id: uuid(),
-            func: (data) => {
-                console.log('Delay input func', data);
-                return data + "_delayed_";
+            func: (data, args) => {
+                const delay = parseInt(args.delay);
+                return new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                        resolve(data);
+                    }, delay || 100);
+                });
             }
         }
     ],
@@ -205,253 +211,257 @@ const Delay: CLFlowBlockType = {
 }
 
 // Process
-const HTTPRequest: CLFlowBlockType = {
-    type: 'HTTPRequest',
-    color: BLOCK_COLORS.magenta,
-    inputs: [
-        {
-            name: 'Iutput',
-            id: uuid(),
-            func: (data) => {
-                console.log('onClick func', data);
-            }
-        }
-    ],
-    outputs: [
-        {
-            name: 'onSuccess',
-            id: uuid(),
-            func: (data) => {
-                console.log('onClick func', data);
-            }
-        },
-        {
-            name: 'onError',
-            id: uuid(),
-            func: (data) => {
-                console.log('onClick func', data);
-            }
-        }
-    ]
-}
-
-const Pluck: CLFlowBlockType = {
-    type: 'Pluck',
-    color: BLOCK_COLORS.magenta,
-    args: [
-        {
-            type: BLOCK_ARGUMENT.picker,
-            defaultValue: '',
-        }
-    ],
-    inputs: [
-        {
-            name: 'Input',
-            id: uuid(),
-            func: (data) => {
-                console.log('onClick func', data);
-            }
-        }
-    ],
-    outputs: [
-        {
-            name: 'Output',
-            id: uuid(),
-            func: (data) => {
-                console.log('onClick func', data);
-            }
-        }
-    ]
-}
-
-const Transform: CLFlowBlockType = {
-    type: 'Transform',
-    color: BLOCK_COLORS.magenta,
-    args: [
-        {
-            type: BLOCK_ARGUMENT.dropdown,
-            defaultValue: '',
-            options: [
-                { key: 'state.something', text: 'state.something' },
-                { key: 'state.something.else', text: 'state.something.else' },
-                { key: 'state.something.something', text: 'state.something.something' },
-            ]
-        }
-    ],
-    inputs: [
-    {
-        name: 'Input',
-        id: uuid(),
-        func: (data) => {
-            console.log('onClick func', data);
-        }
-    }
-    ],
-        outputs: [
-        {
-            name: 'Output',
-            id: uuid(),
-            func: (data) => {
-                console.log('onClick func', data);
-            }
-        }
-    ]
-}
-
-const Join: CLFlowBlockType = {
-    type: 'Join',
-    color: BLOCK_COLORS.magenta,
-    inputs: [
-        {
-            name: 'Input',
-            id: uuid(),
-            func: (data) => {
-                console.log('onClick func', data);
-            }
-        }
-    ],
-    outputs: [
-        {
-            name: 'Output',
-            id: uuid(),
-            func: (data) => {
-                console.log('onClick func', data);
-            }
-        }
-    ]
-}
-
-const Filter: CLFlowBlockType = {
-    type: 'Filter',
-    color: BLOCK_COLORS.magenta,
-    inputs: [
-        {
-            name: 'Input',
-            id: uuid(),
-            func: (data) => {
-                console.log('onClick func', data);
-            }
-        }
-    ],
-    outputs: [
-        {
-            name: 'Output',
-            id: uuid(),
-            func: (data) => {
-                console.log('onClick func', data);
-            }
-        }
-    ]
-}
-
-const Conditional: CLFlowBlockType = {
-    type: 'Conditional',
-    color: BLOCK_COLORS.magenta,
-    args: [
-        {
-            type: BLOCK_ARGUMENT.dropdown,
-            defaultValue: '===',
-            options: [
-                { key: '===', text: 'equal' },
-                { key: '!==', text: 'equal' },
-                { key: '>', text: '>' },
-                { key: '>=', text: '>=' },
-                { key: '<', text: '<' },
-                { key: '<=', text: '<=' }
-            ]
-        }
-    ],
-    inputs: [
-        {
-            name: 'Input',
-            id: uuid(),
-            func: (data) => {
-                console.log('onClick func', data);
-            }
-        },
-        {
-            name: 'Input',
-            id: uuid(),
-            func: (data) => {
-                console.log('onClick func', data);
-            }
-        }
-    ],
-    outputs: [
-        {
-            name: 'Output',
-            id: uuid(),
-            func: (data) => {
-                console.log('onClick func', data);
-            }
-        }
-    ]
-}
-
-// Output (end blocks)
-const Mutation = {
-    type: 'Mutation',
-    color: BLOCK_COLORS.orange,
-    args: [
-        {
-            type: BLOCK_ARGUMENT.dropdown,
-            defaultValue: '',
-            options: [
-                { key: 'store.user.firstname', text: 'store.user.firstname' },
-                { key: 'store.user.lastname', text: 'store.user.lastname' }
-            ]
-        }
-    ],
-    inputs: [
-        {
-            name: 'Data',
-            id: uuid(),
-            func: (data: any) => {
-                console.log('onClick func', data);
-            }
-        }
-    ],
-    outputs: []
-}
-
-const EventDispatch = {
-    type: 'Event Dispatch',
-    color: BLOCK_COLORS.orange,
-    inputs: [
-        {
-            name: 'Data',
-            id: uuid(),
-            func: (data: any) => {
-                console.log('onClick func', data);
-            }
-        }
-    ],
-    outputs: []
-}
-
-const Log: CLFlowBlockType = {
-    type: 'Log',
-    color: BLOCK_COLORS.orange,
-    args: [{
-        type: BLOCK_ARGUMENT.preview,
-        value: {
-            example: true,
-            data: [],
-            todo: 'this data should come from the input func'
-        }
-    }],
-    inputs: [
-        {
-            name: 'Input',
-            id: uuid(),
-            func: (data) => {
-                console.log(data);
-                return data;
-            }
-        }
-    ],
-    outputs: []
-}
+// const HTTPRequest: CLFlowBlockType = {
+//     type: 'HTTPRequest',
+//     color: BLOCK_COLORS.magenta,
+//     inputs: [
+//         {
+//             name: 'Iutput',
+//             id: uuid(),
+//             func: (data) => {
+//                 console.log('onClick func', data);
+//             }
+//         }
+//     ],
+//     outputs: [
+//         {
+//             name: 'onSuccess',
+//             id: uuid(),
+//             func: (data) => {
+//                 console.log('onClick func', data);
+//             }
+//         },
+//         {
+//             name: 'onError',
+//             id: uuid(),
+//             func: (data) => {
+//                 console.log('onClick func', data);
+//             }
+//         }
+//     ]
+// }
+//
+// const Pluck: CLFlowBlockType = {
+//     type: 'Pluck',
+//     color: BLOCK_COLORS.magenta,
+//     args: [
+//         {
+//             key: 'keys',
+//             type: BLOCK_ARGUMENT.picker,
+//             value: '',
+//         }
+//     ],
+//     inputs: [
+//         {
+//             name: 'Input',
+//             id: uuid(),
+//             func: (data) => {
+//                 console.log('onClick func', data);
+//             }
+//         }
+//     ],
+//     outputs: [
+//         {
+//             name: 'Output',
+//             id: uuid(),
+//             func: (data) => {
+//                 console.log('onClick func', data);
+//             }
+//         }
+//     ]
+// }
+//
+// const Transform: CLFlowBlockType = {
+//     type: 'Transform',
+//     color: BLOCK_COLORS.magenta,
+//     args: [
+//         {
+//             key: 'function',
+//             type: BLOCK_ARGUMENT.dropdown,
+//             value: '',
+//             options: [
+//                 { key: 'state.something', text: 'state.something' },
+//                 { key: 'state.something.else', text: 'state.something.else' },
+//                 { key: 'state.something.something', text: 'state.something.something' },
+//             ]
+//         }
+//     ],
+//     inputs: [
+//     {
+//         name: 'Input',
+//         id: uuid(),
+//         func: (data) => {
+//             console.log('onClick func', data);
+//         }
+//     }
+//     ],
+//         outputs: [
+//         {
+//             name: 'Output',
+//             id: uuid(),
+//             func: (data) => {
+//                 console.log('onClick func', data);
+//             }
+//         }
+//     ]
+// }
+//
+// const Join: CLFlowBlockType = {
+//     type: 'Join',
+//     color: BLOCK_COLORS.magenta,
+//     inputs: [
+//         {
+//             name: 'Input',
+//             id: uuid(),
+//             func: (data) => {
+//                 console.log('onClick func', data);
+//             }
+//         }
+//     ],
+//     outputs: [
+//         {
+//             name: 'Output',
+//             id: uuid(),
+//             func: (data) => {
+//                 console.log('onClick func', data);
+//             }
+//         }
+//     ]
+// }
+//
+// const Filter: CLFlowBlockType = {
+//     type: 'Filter',
+//     color: BLOCK_COLORS.magenta,
+//     inputs: [
+//         {
+//             name: 'Input',
+//             id: uuid(),
+//             func: (data) => {
+//                 console.log('onClick func', data);
+//             }
+//         }
+//     ],
+//     outputs: [
+//         {
+//             name: 'Output',
+//             id: uuid(),
+//             func: (data) => {
+//                 console.log('onClick func', data);
+//             }
+//         }
+//     ]
+// }
+//
+// const Conditional: CLFlowBlockType = {
+//     type: 'Conditional',
+//     color: BLOCK_COLORS.magenta,
+//     args: [
+//         {
+//             key: 'check',
+//             type: BLOCK_ARGUMENT.dropdown,
+//             value: '===',
+//             options: [
+//                 { key: '===', text: 'equal' },
+//                 { key: '!==', text: 'equal' },
+//                 { key: '>', text: '>' },
+//                 { key: '>=', text: '>=' },
+//                 { key: '<', text: '<' },
+//                 { key: '<=', text: '<=' }
+//             ]
+//         }
+//     ],
+//     inputs: [
+//         {
+//             name: 'Input',
+//             id: uuid(),
+//             func: (data) => {
+//                 console.log('onClick func', data);
+//             }
+//         },
+//         {
+//             name: 'Input',
+//             id: uuid(),
+//             func: (data) => {
+//                 console.log('onClick func', data);
+//             }
+//         }
+//     ],
+//     outputs: [
+//         {
+//             name: 'Output',
+//             id: uuid(),
+//             func: (data) => {
+//                 console.log('onClick func', data);
+//             }
+//         }
+//     ]
+// }
+//
+// // Output (end blocks)
+// const Mutation = {
+//     type: 'Mutation',
+//     color: BLOCK_COLORS.orange,
+//     args: [
+//         {
+//             type: BLOCK_ARGUMENT.dropdown,
+//             value: '',
+//             options: [
+//                 { key: 'store.user.firstname', text: 'store.user.firstname' },
+//                 { key: 'store.user.lastname', text: 'store.user.lastname' }
+//             ]
+//         }
+//     ],
+//     inputs: [
+//         {
+//             name: 'Data',
+//             id: uuid(),
+//             func: (data: any) => {
+//                 console.log('onClick func', data);
+//             }
+//         }
+//     ],
+//     outputs: []
+// }
+//
+// const EventDispatch = {
+//     type: 'Event Dispatch',
+//     color: BLOCK_COLORS.orange,
+//     inputs: [
+//         {
+//             name: 'Data',
+//             id: uuid(),
+//             func: (data: any) => {
+//                 console.log('onClick func', data);
+//             }
+//         }
+//     ],
+//     outputs: []
+// }
+//
+// const Log: CLFlowBlockType = {
+//     type: 'Log',
+//     color: BLOCK_COLORS.orange,
+//     args: [{
+//         key: 'data',
+//         type: BLOCK_ARGUMENT.preview,
+//         value: {
+//             example: true,
+//             data: [],
+//             todo: 'this data should come from the input func'
+//         }
+//     }],
+//     inputs: [
+//         {
+//             name: 'Input',
+//             id: uuid(),
+//             func: (data) => {
+//                 console.log(data);
+//                 return data;
+//             }
+//         }
+//     ],
+//     outputs: []
+// }
 
 type BlocksSelector = {
     onSelect: (block: any) => {}
@@ -464,31 +474,31 @@ export const Blocks = ({ onSelect }: BlocksSelector) => {
             onSelect(item?.block as CLFlowBlockType)
         },
         items: [
-            { key: 'inputs_divider', itemType: ContextualMenuItemType.Divider },
-            { key: 'input', text: 'Inputs (out)', itemType: ContextualMenuItemType.Header },
+            // { key: 'inputs_divider', itemType: ContextualMenuItemType.Divider },
+            // { key: 'input', text: 'Inputs (out)', itemType: ContextualMenuItemType.Header },
             { key: 'event', text: 'Events', block: Event },
-            { key: 'timer', text: 'Timer', block: Timer },
-            { key: 'constant', text: 'Constant', block: Constant },
-            { key: 'state_value', text: 'State Value', block: StateValue },
-
+            // { key: 'timer', text: 'Timer', block: Timer },
+            // { key: 'constant', text: 'Constant', block: Constant },
+            // { key: 'state_value', text: 'State Value', block: StateValue },
+            //
             { key: 'inputs_others', itemType: ContextualMenuItemType.Divider },
-            { key: 'other', text: 'Others (in/out)', itemType: ContextualMenuItemType.Header },
+            // { key: 'other', text: 'Others (in/out)', itemType: ContextualMenuItemType.Header },
             { key: 'delay', text: 'Delay', block: Delay },
 
-            { key: 'inputs_process', itemType: ContextualMenuItemType.Divider },
-            { key: 'process', text: 'Process (in/out)', itemType: ContextualMenuItemType.Header },
-            { key: 'httpRequest', text: 'HTTPRequest', block: HTTPRequest },
-            { key: 'pluck', text: 'Pluck', block: Pluck },
-            { key: 'transform', text: 'Transform', block: Transform },
-            { key: 'join', text: 'Join', block: Join },
-            { key: 'filter', text: 'Filter', block: Filter },
-            { key: 'conditional', text: 'Conditional', block: Conditional },
-
-            { key: 'inputs_outputs', itemType: ContextualMenuItemType.Divider },
-            { key: 'output', text: 'Outputs (out)', itemType: ContextualMenuItemType.Header },
-            { key: 'mutation', text: 'Mutation', block: Mutation },
-            { key: 'eventDispatch', text: 'Event Dispatch', block: EventDispatch },
-            { key: 'log', text: 'Log', block: Log },
+            // { key: 'inputs_process', itemType: ContextualMenuItemType.Divider },
+            // { key: 'process', text: 'Process (in/out)', itemType: ContextualMenuItemType.Header },
+            // { key: 'httpRequest', text: 'HTTPRequest', block: HTTPRequest },
+            // { key: 'pluck', text: 'Pluck', block: Pluck },
+            // { key: 'transform', text: 'Transform', block: Transform },
+            // { key: 'join', text: 'Join', block: Join },
+            // { key: 'filter', text: 'Filter', block: Filter },
+            // { key: 'conditional', text: 'Conditional', block: Conditional },
+            //
+            // { key: 'inputs_outputs', itemType: ContextualMenuItemType.Divider },
+            // { key: 'output', text: 'Outputs (out)', itemType: ContextualMenuItemType.Header },
+            // { key: 'mutation', text: 'Mutation', block: Mutation },
+            // { key: 'eventDispatch', text: 'Event Dispatch', block: EventDispatch },
+            // { key: 'log', text: 'Log', block: Log },
         ],
     }));
 

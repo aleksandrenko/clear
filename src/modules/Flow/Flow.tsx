@@ -15,11 +15,16 @@ import './Flow.css'
 import {ConnectionLine} from "./Edges/ConnectionLine";
 import {ButtonEdge} from "./Edges/ButtonEdge";
 import uuid from "../../utils/uuid";
-import {Blocks, CLFlowBlockInputsType, CLFlowBlockOutputsType, CLFlowBlockType} from "./Blocks/Blocks";
+import {
+    Blocks,
+    CLFlowBlockArgumentType,
+    CLFlowBlockInputsType,
+    CLFlowBlockOutputsType,
+    CLFlowBlockType
+} from "./Blocks/Blocks";
 import {NODE_TYPES, nodeTypes} from "./Nodes";
 import {Node} from "react-flow-renderer/dist/esm/types/nodes";
 import {DefaultButton, PrimaryButton} from "@fluentui/react";
-import {isPromise} from "../../utils/isPromise";
 
 const flowKey = 'example-flow';
 
@@ -27,14 +32,6 @@ const edgeTypes: EdgeTypes = {
     connectionLine: ConnectionLine,
     buttonEdge: ButtonEdge,
 };
-
-const getTarget = (source, sourceHandle) => {
-    const edge = edges.find((edge => edge.source === source && edge.sourceHandle === sourceHandle));
-    const endModule = blocks.find((block) => block.id === edge.target);
-    //TODO: change this if there is more then 1 input.
-
-    return endModule.inputs[0].func;
-}
 
 const FlowManager = () => {
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -50,7 +47,7 @@ const FlowManager = () => {
         save();
     }, [nodes, edges]);
 
-    const onConnect = (params) => {
+    const onConnect = (params: any) => {
         setEdges((els) => {
             return addEdge(params, els)
         });
@@ -58,6 +55,7 @@ const FlowManager = () => {
 
     const save = useCallback(() => {
         if (rfInstance) {
+            // @ts-ignore
             const flow = rfInstance.toObject();
             const replacerFn = (key: string, val: any) => {
                 return (typeof val === 'function')
@@ -81,7 +79,7 @@ const FlowManager = () => {
                 return value;
             }
 
-            const flow = JSON.parse(localStorage.getItem(flowKey), reviver);
+            const flow = JSON.parse(localStorage.getItem(flowKey) as string, reviver);
 
             if (flow) {
                 const { x = 0, y = 0, zoom = 1 } = flow.viewport;
@@ -113,52 +111,68 @@ const FlowManager = () => {
             id: uuid(),
             type: selectedBlock.nodeType || NODE_TYPES.baseNode,
             data: selectedBlock,
-            position: { x: 100, y: 100 }
+            position: { x: 80 + Math.random() * 40, y: 80 + Math.random() * 40 }
         }
 
         setNodes((nodes) => [...nodes, newNode]);
     }
 
-    const highlightNode = (nodeToHighlight: Node) => {
+    const highlightNode = (nodeToHighlight: Node, highlighted= true) => {
+        const removeHighlightDelay = 500;
 
-        setNodes((nodes) => {
-            const newNodes = nodes.map((node) => {
-                if (node.id === nodeToHighlight.id) {
-                    return {
-                        ...node,
-                        data: {
-                            ...node.data,
-                            highlighted: true
+        if (highlighted) {
+            setNodes((nodes) => {
+                const newNodes = nodes.map((node) => {
+                    if (node.id === nodeToHighlight.id) {
+                        return {
+                            ...node,
+                            data: {
+                                ...node.data,
+                                highlighted: true
+                            }
                         }
                     }
-                }
 
-                return node;
-            })
+                    return node;
+                })
 
-            return newNodes;
-        });
-
-        setTimeout(() => {
-            const newNodes = nodes.map((node) => {
-                if (node.id === nodeToHighlight.id) {
-                    return {
-                        ...node,
-                        data: {
-                            ...node.data,
-                            highlighted: false
+                return newNodes;
+            });
+        } else {
+            setTimeout(() => {
+                setNodes((nodes) => {
+                    const newNodes = nodes.map((node) => {
+                        if (node.id === nodeToHighlight.id) {
+                            return {
+                                ...node,
+                                data: {
+                                    ...node.data,
+                                    highlighted: false
+                                }
+                            }
                         }
-                    }
-                }
 
-                return node;
-            })
+                        return node;
+                    })
 
-            setNodes(newNodes);
-        }, 2000);
+                    return newNodes;
+                });
+            }, removeHighlightDelay);
+        }
     }
 
     const manualRun = (nodes: Node[], edges: Edge[]) => {
+        const getArgsValues = (node?: Node) => {
+            const args = node?.data.args;
+
+            return Object.keys(args).reduce((sum, argKey: string) => {
+               return {
+                   ...sum,
+                   [argKey]: args[argKey].value
+               };
+            }, {});
+        }
+
         const startNode = nodes.filter(node => node.data.isRunnable)[0];
         if (!startNode) {
             console.error('Manual Run: No runnable node found.');
@@ -180,9 +194,6 @@ const FlowManager = () => {
                 console.error('Manual Run: No starting or ending node found for an edge.', edge);
             }
 
-            highlightNode(startNode);
-            highlightNode(endNode);
-
             const startOutput = startNode?.data.outputs.find((output: CLFlowBlockOutputsType) => edge.sourceHandle === output.id);
             const endInput = endNode?.data.inputs.find((input: CLFlowBlockInputsType) => edge.targetHandle === input.id);
 
@@ -200,8 +211,12 @@ const FlowManager = () => {
             //Get the value from a wrapped promise or raw
             const unwrappedStartValue = await initialValue;
 
-            const startValue = await startFunction(unwrappedStartValue);
-            const endResultOriginal = await endFunction(startValue);
+            highlightNode(startNode);
+            const startValue = await startFunction(unwrappedStartValue, getArgsValues(startNode));
+            highlightNode(startNode, false);
+            highlightNode(endNode);
+            const endResultOriginal = await endFunction(startValue, getArgsValues(endNode));
+            highlightNode(endNode, false);
 
             const endResult = new Promise((resolve, reject) => {
                 try {

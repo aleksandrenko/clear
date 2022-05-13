@@ -3,7 +3,7 @@ import './BaseNode.css';
 
 import {Handle, Position} from 'react-flow-renderer';
 import {BLOCK_ARGUMENT, CLFlowBlockArgumentType, CLFlowBlockOutputsType, CLFlowBlockType} from "../../Blocks/Blocks";
-import {Dropdown, TagPicker, TextField} from "@fluentui/react";
+import {Dropdown, TextField} from "@fluentui/react";
 
 export const BaseNode = memo((props: any) => {
     const data = props.data as CLFlowBlockType;
@@ -39,24 +39,47 @@ export const BaseNode = memo((props: any) => {
                 <div className="cl-flow__node__type">{data.type}</div>
                 <div className="cl-flow__node__description">{data.description}</div>
                 <div className="cl-flow__node__args">
-                    { data.args?.map((arg: CLFlowBlockArgumentType, index) => {
+                    { Object.values(data.args)?.map((arg: CLFlowBlockArgumentType, index) => {
                         if (arg.type === BLOCK_ARGUMENT.number) {
-                            return <TextField key={index} width="100%" label={arg.name} type="number" suffix={arg.suffix} defaultValue={arg.defaultValue as undefined} />
+                            return (
+                                <TextField
+                                    key={index}
+                                    width="100%"
+                                    type="number"
+                                    suffix={arg.suffix}
+                                    defaultValue={arg.value || ''}
+                                    onChange={(e:any) => { arg.value = e.target.value }}
+                                />
+                            );
                         }
 
                         if (arg.type === BLOCK_ARGUMENT.dropdown) {
                             return (
-                                <Dropdown key={index} label={arg.name || ''} options={arg?.options || []} defaultSelectedKey={arg?.defaultValue as undefined} />
+                                <Dropdown key={index} options={arg?.options || []} defaultSelectedKey={arg?.value as undefined} />
                             )
                         }
 
                         if (arg.type === BLOCK_ARGUMENT.string) {
-                            return <TextField key={index} width="100%" label={arg.name} defaultValue={arg.defaultValue as undefined} />
+                            return (
+                                <TextField
+                                    key={index}
+                                    width="100%"
+                                    defaultValue={arg.value as undefined}
+                                    onChange={(e:any) => { arg.value = e.target.value }}
+                                />
+                            )
                         }
 
                         if (arg.type === BLOCK_ARGUMENT.picker) {
-                            return <TextField key={index} width="100%" label={arg.name} placeholder="Keys to pluck separated by a comma" defaultValue={arg.defaultValue as undefined} />
-
+                            return (
+                                <TextField
+                                    key={index}
+                                    width="100%"
+                                    placeholder="Keys to pluck separated by a comma"
+                                    defaultValue={arg.value as undefined}
+                                    onChange={(e:any) => { arg.value = e.target.value }}
+                                />
+                            )
                         }
 
                         if (arg.type === BLOCK_ARGUMENT.preview) {
