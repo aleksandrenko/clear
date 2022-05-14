@@ -8,6 +8,7 @@ import {
 } from "@fluentui/react";
 import {NODE_TYPES} from "../Nodes";
 import uuid from "../../../utils/uuid";
+import {deepCopy} from "../../../utils/deepCopy";
 
 //inspiration ideas, naming
 //https://rxjs.dev/guide/operators#multicasting-operators
@@ -465,13 +466,15 @@ const Delay: CLFlowBlockType = {
 
 type BlocksSelector = {
     onSelect: (block: any) => {}
+    disabled: boolean
 }
 
-export const Blocks = ({ onSelect }: BlocksSelector) => {
+export const Blocks = ({ onSelect, disabled }: BlocksSelector) => {
     const menuProps = useConst<IContextualMenuProps>(() => ({
         shouldFocusOnMount: true,
         onItemClick: (e, item) => {
-            onSelect(item?.block as CLFlowBlockType)
+            const selectedBlock = deepCopy(item?.block) as CLFlowBlockType;
+            onSelect(selectedBlock);
         },
         items: [
             // { key: 'inputs_divider', itemType: ContextualMenuItemType.Divider },
@@ -505,6 +508,6 @@ export const Blocks = ({ onSelect }: BlocksSelector) => {
 
     //TODO: filter the available blocks based on context - only inputs or no inputs
     return (
-        <DefaultButton text="Add Function" menuProps={menuProps} />
+        <DefaultButton text="Add Function" menuProps={menuProps} disabled={disabled} />
     );
 }

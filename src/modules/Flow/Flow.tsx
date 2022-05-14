@@ -38,6 +38,7 @@ const FlowManager = () => {
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
     const [rfInstance, setRfInstance] = useState(null);
     const { setViewport } = useReactFlow();
+    const [isStarted, setIsStarted] = useState(false);
 
     useEffect(() => {
         restore();
@@ -201,6 +202,7 @@ const FlowManager = () => {
                 console.error('Manual Run: No starting or ending functions found for an edge.', edge);
             }
 
+            console.log('startOutput', startOutput);
             const startFunction = startOutput.func;
             const endFunction = endInput.func;
 
@@ -228,7 +230,13 @@ const FlowManager = () => {
 
             //when done with the function pass the data to the endNode outgoing edges
             const endNodeOutgoingEdges = edges.filter((edge) => edge.source === endNode?.id);
-            executeEdges(endNodeOutgoingEdges, endResult);
+
+            if (!!endNodeOutgoingEdges.length) {
+                executeEdges(endNodeOutgoingEdges, endResult);
+            } else {
+                console.log("end of flow");
+                setIsStarted(false);
+            }
 
             //TODO: complete the block functions
             //TODO: try implement the delay block correctly
@@ -238,6 +246,7 @@ const FlowManager = () => {
             edges.forEach((startEdge) => executeEdge(startEdge, initialValue));
         }
 
+        setIsStarted(true);
         executeEdges(startEdges, "start");
     }
 
@@ -268,11 +277,11 @@ const FlowManager = () => {
                     <div className="npm-flow-editor__actions">
                         <Blocks onSelect={(selectedBlock) => {
                             addNodeSelectHandler(selectedBlock);
-                        }} />
+                        }} disabled={isStarted} />
                         &nbsp;
-                        <DefaultButton onClick={() => { setNodes([]) }}>Clear</DefaultButton>
+                        <DefaultButton onClick={() => { setNodes([]) }} disabled={isStarted}>Clear</DefaultButton>
                         &nbsp;
-                        <PrimaryButton onClick={() => manualRun(nodes, edges)}>Manual run</PrimaryButton>
+                        <PrimaryButton onClick={() => manualRun(nodes, edges)} disabled={isStarted}>Manual run</PrimaryButton>
                     </div>
                 </ReactFlow>
             </div>
