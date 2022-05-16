@@ -1,12 +1,19 @@
-import React, {memo} from 'react';
+import React, {memo, useEffect, useState} from 'react';
 import './BaseNode.css';
 
 import {Handle, Position} from 'react-flow-renderer';
 import {BLOCK_ARGUMENT, CLFlowBlockArgumentType, CLFlowBlockOutputsType, CLFlowBlockType} from "../../Blocks/Blocks";
-import {Dropdown, TextField} from "@fluentui/react";
+import {Dropdown, TextField, Toggle} from "@fluentui/react";
+
+const toString = (obj: any) => JSON.stringify(obj, null, 2);
 
 export const BaseNode = memo((props: any) => {
     const data = props.data as CLFlowBlockType;
+    const [showLogs, setShowLogs] = useState(data.showLogs);
+
+    useEffect(() => {
+        data.showLogs = showLogs;
+    }, [showLogs]);
 
     const nodeClassNames = ['cl-flow__node'];
     if (data.highlighted) {
@@ -26,7 +33,7 @@ export const BaseNode = memo((props: any) => {
                             className="cl-flow__node__dot"
                             position={Position.Left}
                         >
-                            <div className="cl-flow__node__dot-name">{input.name}</div>
+                            <div className="cl-flow__node__dot-name" title={toString(input.lastValue)}>{input.name}</div>
                         </Handle>
                     )
                 })}
@@ -93,7 +100,28 @@ export const BaseNode = memo((props: any) => {
                         )
                     }) }
                 </div>
-                <div className="cl-flow__node__delete">×</div>
+                <div className="cl-flow__node__actions">
+                    <Toggle checked={showLogs} className="cl-flow__node__toggle_logs" onChange={() => setShowLogs(!showLogs)} />
+                    <div className="cl-flow__node__delete">×</div>
+                </div>
+
+                { showLogs && (
+                    <div className="cl-flow__node__logs">
+                        { data.inputs.some((input) => input.lastValue != null) && (
+                            <>
+                                <b>input:</b>
+                                { data.inputs.map((input, index) => <div key={index} className="cl-flow__node__logs_data">{input.lastValue}</div>) }
+                            </>
+                        ) }
+
+                        { data.outputs.some((output) => output.lastValue != null) && (
+                            <>
+                                <b>output:</b>
+                                { data.outputs.map((output, index) => <div key={index} className="cl-flow__node__logs_data">{output.lastValue}</div>) }
+                            </>
+                        ) }
+                    </div>
+                )}
             </div>
 
             <div className="cl-flow__node__dots-outputs">
@@ -107,7 +135,7 @@ export const BaseNode = memo((props: any) => {
                             className="cl-flow__node__dot"
                             position={Position.Right}
                         >
-                            <div className="cl-flow__node__dot-name">{output.name}</div>
+                            <div className="cl-flow__node__dot-name" title={toString(output.lastValue)}>{output.name}</div>
                         </Handle>
                     )
                 })}

@@ -25,6 +25,7 @@ import {
 import {NODE_TYPES, nodeTypes} from "./Nodes";
 import {Node} from "react-flow-renderer/dist/esm/types/nodes";
 import {DefaultButton, PrimaryButton} from "@fluentui/react";
+import {deepCopy} from "../../utils/deepCopy";
 
 const flowKey = 'example-flow';
 
@@ -163,6 +164,20 @@ const FlowManager = () => {
     }
 
     const manualRun = (nodes: Node[], edges: Edge[]) => {
+        //TODO: clear all lastValue-s on new start
+        // setNodes((nodes) => {
+        //     const cloneNodes = deepCopy(nodes);
+        //     console.log('cloneNodes', cloneNodes);
+        //
+        //     cloneNodes.forEach((node: Node) => {
+        //         const {inputs, outputs} = node.data;
+        //         inputs.forEach((input: CLFlowBlockInputsType) => input.lastValue = undefined);
+        //         outputs.forEach((output: CLFlowBlockOutputsType) => output.lastValue = undefined);
+        //     });
+        //
+        //     return cloneNodes;
+        // });
+
         const getArgsValues = (node?: Node) => {
             const args = node?.data.args;
 
@@ -202,7 +217,7 @@ const FlowManager = () => {
                 console.error('Manual Run: No starting or ending functions found for an edge.', edge);
             }
 
-            console.log('startOutput', startOutput);
+            //TODO: Do I actually need a second function? I need inputs, function and outputs.
             const startFunction = startOutput.func;
             const endFunction = endInput.func;
 
@@ -214,11 +229,17 @@ const FlowManager = () => {
             const unwrappedStartValue = await initialValue;
 
             highlightNode(startNode);
+            startOutput.lastValue = unwrappedStartValue;
+
             const startValue = await startFunction(unwrappedStartValue, getArgsValues(startNode));
+
             highlightNode(startNode, false);
             highlightNode(endNode);
             const endResultOriginal = await endFunction(startValue, getArgsValues(endNode));
+            endInput.lastValue = startValue;
             highlightNode(endNode, false);
+
+            // endNode?.data?.outputs?[0].value = endResultOriginal;
 
             const endResult = new Promise((resolve, reject) => {
                 try {
@@ -237,9 +258,6 @@ const FlowManager = () => {
                 console.log("end of flow");
                 setIsStarted(false);
             }
-
-            //TODO: complete the block functions
-            //TODO: try implement the delay block correctly
         }
 
         const executeEdges = (edges: Edge[], initialValue: any) => {

@@ -16,12 +16,14 @@ import {deepCopy} from "../../../utils/deepCopy";
 export type CLFlowBlockInputsType = {
     name: string,
     id: string,
+    lastValue: undefined,
     func: (data: any, args: { [key: string]: any }) => any
 }
 
 export type CLFlowBlockOutputsType = {
     name: string,
     id: string,
+    lastValue: undefined,
     func: (data: any) => any
 }
 
@@ -52,6 +54,7 @@ export type CLFlowBlockType = {
     type: string,
     isRunnable?: boolean,
     highlighted?: boolean,
+    showLogs?: boolean,
     color?: string,
     nodeType?: string,
     description?: string,
@@ -65,6 +68,7 @@ const Event: CLFlowBlockType = {
     type: 'Event',
     isRunnable: true,
     highlighted: false,
+    showLogs: false,
     color: BLOCK_COLORS.blue,
     args: {
         event: {
@@ -94,6 +98,7 @@ const Event: CLFlowBlockType = {
         {
             name: 'onClick',
             id: uuid(),
+            lastValue: undefined,
             func: (data) => {
                 console.log('onClick func', data);
                 return data + "_clicked_";
@@ -178,6 +183,8 @@ const Event: CLFlowBlockType = {
 const Delay: CLFlowBlockType = {
     type: 'Delay',
     color: BLOCK_COLORS.teal,
+    highlighted: false,
+    showLogs: true,
     args: {
         delay: {
             type: BLOCK_ARGUMENT.number,
@@ -189,6 +196,7 @@ const Delay: CLFlowBlockType = {
         {
             name: 'Input',
             id: uuid(),
+            lastValue: undefined,
             func: (data, args) => {
                 const delay = parseInt(args.delay);
                 return new Promise((resolve, reject) => {
@@ -203,6 +211,7 @@ const Delay: CLFlowBlockType = {
         {
             name: 'Output',
             id: uuid(),
+            lastValue: undefined,
             func: (data) => {
                 console.log('Delay output func', data);
                 return data;
@@ -439,30 +448,6 @@ const Delay: CLFlowBlockType = {
 //     outputs: []
 // }
 //
-// const Log: CLFlowBlockType = {
-//     type: 'Log',
-//     color: BLOCK_COLORS.orange,
-//     args: [{
-//         key: 'data',
-//         type: BLOCK_ARGUMENT.preview,
-//         value: {
-//             example: true,
-//             data: [],
-//             todo: 'this data should come from the input func'
-//         }
-//     }],
-//     inputs: [
-//         {
-//             name: 'Input',
-//             id: uuid(),
-//             func: (data) => {
-//                 console.log(data);
-//                 return data;
-//             }
-//         }
-//     ],
-//     outputs: []
-// }
 
 type BlocksSelector = {
     onSelect: (block: any) => {}
@@ -501,7 +486,6 @@ export const Blocks = ({ onSelect, disabled }: BlocksSelector) => {
             // { key: 'output', text: 'Outputs (out)', itemType: ContextualMenuItemType.Header },
             // { key: 'mutation', text: 'Mutation', block: Mutation },
             // { key: 'eventDispatch', text: 'Event Dispatch', block: EventDispatch },
-            // { key: 'log', text: 'Log', block: Log },
         ],
     }));
 
