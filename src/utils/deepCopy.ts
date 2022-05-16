@@ -15,7 +15,11 @@ const reviver = (key: string, value: string) => {
 	return value;
 }
 
+export const safeParse = (text: string) =>  JSON.parse(text, reviver);
+export const safeStringify = (obj: any) => JSON.stringify(obj, replacerFn);
+
 export const deepCopy = (obj: any) => {
 	//TODO: optimize this. Check "structuredClone"
-	return JSON.parse((JSON.stringify(obj, replacerFn)), reviver);
+	const string = safeStringify(obj);
+	return safeParse(string);
 }

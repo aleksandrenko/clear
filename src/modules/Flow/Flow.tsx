@@ -17,16 +17,12 @@ import {ButtonEdge} from "./Edges/ButtonEdge";
 import uuid from "../../utils/uuid";
 import {
     Blocks,
-    CLFlowBlockArgumentType,
-    CLFlowBlockInputsType,
-    CLFlowBlockOutputsType,
     CLFlowBlockType
 } from "./Blocks/Blocks";
 import {NODE_TYPES, nodeTypes} from "./Nodes";
 import {Node} from "react-flow-renderer/dist/esm/types/nodes";
 import {DefaultButton, PrimaryButton} from "@fluentui/react";
-import {deepCopy} from "../../utils/deepCopy";
-import data from "../../pages/Data/Data";
+import {deepCopy, safeParse, safeStringify} from "../../utils/deepCopy";
 
 const flowKey = 'example-flow';
 
@@ -42,13 +38,9 @@ const FlowManager = () => {
     const { setViewport } = useReactFlow();
     const [isStarted, setIsStarted] = useState(false);
 
-    useEffect(() => {
-        restore();
-    }, []);
+    useEffect(() => { restore(); }, []);
 
-    useEffect(() => {
-        save();
-    }, [nodes, edges]);
+    useEffect(() => { save(); }, [nodes, edges]);
 
     const onConnect = (params: any) => {
         setEdges((els) => {
@@ -60,29 +52,14 @@ const FlowManager = () => {
         if (rfInstance) {
             // @ts-ignore
             const flow = rfInstance.toObject();
-            const replacerFn = (key: string, val: any) => {
-                return (typeof val === 'function')
-                    ? val.toString().replace(/(\r\n|\n|\r)/gm, "")
-                    : val
-            };
-
-            localStorage.setItem(flowKey, JSON.stringify(flow, replacerFn));
+            localStorage.setItem(flowKey, safeStringify(flow));
         }
     }, [rfInstance]);
 
     const restore = useCallback(() => {
         const restoreFlow = async () => {
-            const reviver = (key: string, value: string) => {
-                if (key === 'func') {
-                    const wrapperFunction = new Function("return " + value);
-                    const storedFunction = wrapperFunction();
-                    return storedFunction;
-                }
-
-                return value;
-            }
-
-            const flow = JSON.parse(localStorage.getItem(flowKey) as string, reviver);
+            const lsData = localStorage.getItem(flowKey) as string;
+            const flow = safeParse(lsData);
 
             if (flow) {
                 const { x = 0, y = 0, zoom = 1 } = flow.viewport;
@@ -105,7 +82,7 @@ const FlowManager = () => {
         const isDeleteTarget = e.target.className === 'cl-flow__node__delete';
 
         if (isDeleteTarget) {
-            setNodes(nodes.filter(_node => _node.id !== node.id));
+            setNodes((nodes) => nodes.filter(_node => _node.id !== node.id));
         }
     }
 
@@ -121,58 +98,42 @@ const FlowManager = () => {
     }
 
     const highlightNode = (nodeToHighlight: Node, highlighted= true) => {
-        const removeHighlightDelay = 300;
-
-        if (highlighted) {
-            setNodes((nodes) => {
-                const newNodes = nodes.map((node) => {
-                    if (node.id === nodeToHighlight.id) {
-                        return {
-                            ...node,
-                            data: {
-                                ...node.data,
-                                highlighted
-                            }
+        setNodes((nodes) => {
+            return nodes.map((node) => {
+                return node.id !== nodeToHighlight.id
+                    ? node
+                    : {
+                        ...node,
+                        data: {
+                            ...node.data,
+                            highlighted
                         }
                     }
-
-                    return node;
-                })
-
-                return newNodes;
-            });
-        } else {
-            setTimeout(() => {
-                setNodes((nodes) => {
-                    const newNodes = nodes.map((node) => {
-                        if (node.id === nodeToHighlight.id) {
-                            return {
-                                ...node,
-                                data: {
-                                    ...node.data,
-                                    highlighted: false
-                                }
-                            }
-                        }
-
-                        return node;
-                    })
-
-                    return newNodes;
-                });
-            }, removeHighlightDelay);
-        }
+            })
+        });
     }
 
     const clearLastValues = () => {
-        setNodes((nodes) => {
-            return nodes.map((node) => {
-                const nodeCopy = deepCopy(node);
-                nodeCopy.data.lastValue = undefined;
+        setNodes((nodes) => nodes.map((node) => {
+            const nodeCopy = deepCopy(node);
+            nodeCopy.data.lastValue = undefined;
 
-                return nodeCopy;
-            });
-        });
+            return nodeCopy;
+        }));
+    }
+
+    const setNodeLastValues = (id: string, value: any) => {
+        setNodes((nodes) => nodes.map((node) => {
+            return node.id !== id
+                ? node
+                : {
+                    ...node,
+                    data: {
+                        ...node.data,
+                        lastValue: value
+                    }
+                }
+        }));
     }
 
     const getArgsValues = (node?: Node) => {
@@ -186,40 +147,37 @@ const FlowManager = () => {
         }, {});
     }
 
-    const manualRun = (nodes: Node[], edges: Edge[]) => {
+    const getNodeById = (id: string) => nodes.find(node => node.id === id);
+
+    const getNextNodes = (node: Node) => {
+        const outgoingEdges = edges.filter((edge) => edge.source === node.id);
+        return outgoingEdges.map((edge) => getNodeById(edge.target));
+    }
+
+    const manualRun = async (nodes: Node[]) => {
         clearLastValues();
         const startNodes = nodes.filter(node => node.data.isRunnable);
 
         const executeNode = async (node: Node, inputValue: any) => {
             const unwrappedStartValue = await inputValue;
             const operationFunction = node.data.func;
-            if (!operationFunction) {
-                console.error('Manual Run: The function is not found.', node);
-            }
 
             highlightNode(node);
             const resultValue = await operationFunction(unwrappedStartValue, getArgsValues(node));
-            highlightNode(node, false);
+            setNodeLastValues(node.id, resultValue);
+            const wrapped = new Promise((resolve, reject) => resolve(resultValue));
+            setTimeout( () => highlightNode(node, false), 250);
+            const nextNodes = getNextNodes(node);
 
-            // @ts-ignore
-            setNodes((nodes) => {
-                return nodes.map((_node) => {
-                    if (node.id === _node.id) {
-                        const nodeCopy = deepCopy(node);
-                        nodeCopy.data.lastValue = resultValue;
-                        return nodeCopy;
-                    }
-
-                    return node;
-                });
+            nextNodes.forEach((nextNode: any) => {
+                executeNode(nextNode, wrapped);
             });
-
-            setIsStarted(false);
-            return new Promise((resolve, reject) => resolve(resultValue));
         }
 
-        setIsStarted(true);
-        startNodes.forEach(executeNode);
+        // setIsStarted(true);
+        startNodes.forEach((node) => {
+            executeNode(node, 'hardcoded_start_value');
+        });
     }
 
     return (

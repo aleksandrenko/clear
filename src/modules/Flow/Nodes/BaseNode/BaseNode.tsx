@@ -5,8 +5,6 @@ import {Handle, Position} from 'react-flow-renderer';
 import {BLOCK_ARGUMENT, CLFlowBlockArgumentType, CLFlowBlockOutputsType, CLFlowBlockType} from "../../Blocks/Blocks";
 import {Dropdown, TextField, Toggle} from "@fluentui/react";
 
-const toString = (obj: any) => JSON.stringify(obj, null, 2);
-
 export const BaseNode = memo((props: any) => {
     const data = props.data as CLFlowBlockType;
     const [showLogs, setShowLogs] = useState(data.showLogs);
@@ -52,8 +50,8 @@ export const BaseNode = memo((props: any) => {
                         if (arg.type === BLOCK_ARGUMENT.number) {
                             return (
                                 <TextField
+                                    style={{ width: "110px" }}
                                     key={index}
-                                    width="100%"
                                     type="number"
                                     suffix={arg.suffix}
                                     defaultValue={arg.value || ''}
@@ -72,7 +70,6 @@ export const BaseNode = memo((props: any) => {
                             return (
                                 <TextField
                                     key={index}
-                                    width="100%"
                                     defaultValue={arg.value as undefined}
                                     onChange={(e:any) => { arg.value = e.target.value }}
                                 />
@@ -83,7 +80,6 @@ export const BaseNode = memo((props: any) => {
                             return (
                                 <TextField
                                     key={index}
-                                    width="100%"
                                     placeholder="Keys to pluck separated by a comma"
                                     defaultValue={arg.value as undefined}
                                     onChange={(e:any) => { arg.value = e.target.value }}
