@@ -16,15 +16,11 @@ import {deepCopy} from "../../../utils/deepCopy";
 export type CLFlowBlockInputsType = {
     name: string,
     id: string,
-    lastValue: undefined,
-    func: (data: any, args: { [key: string]: any }) => any
 }
 
 export type CLFlowBlockOutputsType = {
     name: string,
     id: string,
-    lastValue: undefined,
-    func: (data: any) => any
 }
 
 //https://blog.lsonline.fr/fluent-ui-core-color/
@@ -59,6 +55,8 @@ export type CLFlowBlockType = {
     nodeType?: string,
     description?: string,
     args: { [key: string]: CLFlowBlockArgumentType },
+    func: (data: any, args: { [key: string]: any }) => any,
+    lastValue?: any,
     inputs: CLFlowBlockInputsType[],
     outputs: CLFlowBlockOutputsType[]
 }
@@ -93,16 +91,14 @@ const Event: CLFlowBlockType = {
             ]
         }
     },
+    func: (data) => {
+        return data + "_clicked_";
+    },
     inputs: [],
     outputs: [
         {
             name: 'onClick',
-            id: uuid(),
-            lastValue: undefined,
-            func: (data) => {
-                console.log('onClick func', data);
-                return data + "_clicked_";
-            }
+            id: uuid()
         }
     ]
 }
@@ -192,30 +188,25 @@ const Delay: CLFlowBlockType = {
             value: 500
         }
     },
+    func: (data, args) => {
+        const delay = parseInt(args.delay);
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                resolve(data);
+            }, delay || 100);
+        });
+    },
+    lastValue: undefined,
     inputs: [
         {
             name: 'Input',
-            id: uuid(),
-            lastValue: undefined,
-            func: (data, args) => {
-                const delay = parseInt(args.delay);
-                return new Promise((resolve, reject) => {
-                    setTimeout(() => {
-                        resolve(data);
-                    }, delay || 100);
-                });
-            }
+            id: uuid()
         }
     ],
     outputs: [
         {
             name: 'Output',
-            id: uuid(),
-            lastValue: undefined,
-            func: (data) => {
-                console.log('Delay output func', data);
-                return data;
-            }
+            id: uuid()
         }
     ]
 }

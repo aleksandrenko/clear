@@ -136,10 +136,6 @@
     font-size: 80%;
 }
 
-.cl-flow__node__logs_data {
-    padding-left: 5px;
-}
-
 .cl-flow__node__delete {
     opacity: 0.5;
     transition: opacity 0.25s;

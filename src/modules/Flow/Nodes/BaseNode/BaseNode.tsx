@@ -33,7 +33,7 @@ export const BaseNode = memo((props: any) => {
                             className="cl-flow__node__dot"
                             position={Position.Left}
                         >
-                            <div className="cl-flow__node__dot-name" title={toString(input.lastValue)}>{input.name}</div>
+                            <div className="cl-flow__node__dot-name">{input.name}</div>
                         </Handle>
                     )
                 })}
@@ -43,7 +43,9 @@ export const BaseNode = memo((props: any) => {
                 borderColor: data.color || ''
             }}>
                 <div className="cl-flow__node__progress"  style={{ backgroundColor: data.color || '' }} />
-                <div className="cl-flow__node__type">{data.type}</div>
+                <div className="cl-flow__node__type">
+                    {data.type}
+                </div>
                 <div className="cl-flow__node__description">{data.description}</div>
                 <div className="cl-flow__node__args">
                     { Object.values(data.args)?.map((arg: CLFlowBlockArgumentType, index) => {
@@ -100,6 +102,7 @@ export const BaseNode = memo((props: any) => {
                         )
                     }) }
                 </div>
+
                 <div className="cl-flow__node__actions">
                     <Toggle checked={showLogs} className="cl-flow__node__toggle_logs" onChange={() => setShowLogs(!showLogs)} />
                     <div className="cl-flow__node__delete">×</div>
@@ -107,19 +110,7 @@ export const BaseNode = memo((props: any) => {
 
                 { showLogs && (
                     <div className="cl-flow__node__logs">
-                        { data.inputs.some((input) => input.lastValue != null) && (
-                            <>
-                                <b>input:</b>
-                                { data.inputs.map((input, index) => <div key={index} className="cl-flow__node__logs_data">{input.lastValue}</div>) }
-                            </>
-                        ) }
-
-                        { data.outputs.some((output) => output.lastValue != null) && (
-                            <>
-                                <b>output:</b>
-                                { data.outputs.map((output, index) => <div key={index} className="cl-flow__node__logs_data">{output.lastValue}</div>) }
-                            </>
-                        ) }
+                        { JSON.stringify(data.lastValue, null, 2) }
                     </div>
                 )}
             </div>
@@ -135,7 +126,7 @@ export const BaseNode = memo((props: any) => {
                             className="cl-flow__node__dot"
                             position={Position.Right}
                         >
-                            <div className="cl-flow__node__dot-name" title={toString(output.lastValue)}>{output.name}</div>
+                            <div className="cl-flow__node__dot-name">{output.name}</div>
                         </Handle>
                     )
                 })}

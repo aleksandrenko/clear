@@ -26,6 +26,7 @@ import {NODE_TYPES, nodeTypes} from "./Nodes";
 import {Node} from "react-flow-renderer/dist/esm/types/nodes";
 import {DefaultButton, PrimaryButton} from "@fluentui/react";
 import {deepCopy} from "../../utils/deepCopy";
+import data from "../../pages/Data/Data";
 
 const flowKey = 'example-flow';
 
@@ -120,7 +121,7 @@ const FlowManager = () => {
     }
 
     const highlightNode = (nodeToHighlight: Node, highlighted= true) => {
-        const removeHighlightDelay = 500;
+        const removeHighlightDelay = 300;
 
         if (highlighted) {
             setNodes((nodes) => {
@@ -130,7 +131,7 @@ const FlowManager = () => {
                             ...node,
                             data: {
                                 ...node.data,
-                                highlighted: true
+                                highlighted
                             }
                         }
                     }
@@ -163,109 +164,62 @@ const FlowManager = () => {
         }
     }
 
+    const clearLastValues = () => {
+        setNodes((nodes) => {
+            return nodes.map((node) => {
+                const nodeCopy = deepCopy(node);
+                nodeCopy.data.lastValue = undefined;
+
+                return nodeCopy;
+            });
+        });
+    }
+
+    const getArgsValues = (node?: Node) => {
+        const args = node?.data.args;
+
+        return Object.keys(args).reduce((sum, argKey: string) => {
+            return {
+                ...sum,
+                [argKey]: args[argKey].value
+            };
+        }, {});
+    }
+
     const manualRun = (nodes: Node[], edges: Edge[]) => {
-        //TODO: clear all lastValue-s on new start
-        // setNodes((nodes) => {
-        //     const cloneNodes = deepCopy(nodes);
-        //     console.log('cloneNodes', cloneNodes);
-        //
-        //     cloneNodes.forEach((node: Node) => {
-        //         const {inputs, outputs} = node.data;
-        //         inputs.forEach((input: CLFlowBlockInputsType) => input.lastValue = undefined);
-        //         outputs.forEach((output: CLFlowBlockOutputsType) => output.lastValue = undefined);
-        //     });
-        //
-        //     return cloneNodes;
-        // });
+        clearLastValues();
+        const startNodes = nodes.filter(node => node.data.isRunnable);
 
-        const getArgsValues = (node?: Node) => {
-            const args = node?.data.args;
-
-            return Object.keys(args).reduce((sum, argKey: string) => {
-               return {
-                   ...sum,
-                   [argKey]: args[argKey].value
-               };
-            }, {});
-        }
-
-        const startNode = nodes.filter(node => node.data.isRunnable)[0];
-        if (!startNode) {
-            console.error('Manual Run: No runnable node found.');
-            return;
-        }
-
-        const startEdges = edges.filter((edge) => edge.source === startNode.id);
-
-        if (!startEdges || !startEdges.length) {
-            console.error('Manual Run: No edge found to the starting node.');
-            return;
-        }
-
-        const executeEdge = async (edge: Edge, initialValue: any) => {
-            const startNode = nodes.find(node => node.id === edge.source);
-            const endNode = nodes.find(node => node.id === edge.target);
-
-            if (!startNode || !endNode) {
-                console.error('Manual Run: No starting or ending node found for an edge.', edge);
+        const executeNode = async (node: Node, inputValue: any) => {
+            const unwrappedStartValue = await inputValue;
+            const operationFunction = node.data.func;
+            if (!operationFunction) {
+                console.error('Manual Run: The function is not found.', node);
             }
 
-            const startOutput = startNode?.data.outputs.find((output: CLFlowBlockOutputsType) => edge.sourceHandle === output.id);
-            const endInput = endNode?.data.inputs.find((input: CLFlowBlockInputsType) => edge.targetHandle === input.id);
+            highlightNode(node);
+            const resultValue = await operationFunction(unwrappedStartValue, getArgsValues(node));
+            highlightNode(node, false);
 
-            if (!startOutput || !endInput) {
-                console.error('Manual Run: No starting or ending functions found for an edge.', edge);
-            }
+            // @ts-ignore
+            setNodes((nodes) => {
+                return nodes.map((_node) => {
+                    if (node.id === _node.id) {
+                        const nodeCopy = deepCopy(node);
+                        nodeCopy.data.lastValue = resultValue;
+                        return nodeCopy;
+                    }
 
-            //TODO: Do I actually need a second function? I need inputs, function and outputs.
-            const startFunction = startOutput.func;
-            const endFunction = endInput.func;
-
-            if (!startFunction || !endFunction) {
-                console.error('Manual Run: The starting or/end ending functions the edge are not found.', edge);
-            }
-
-            //Get the value from a wrapped promise or raw
-            const unwrappedStartValue = await initialValue;
-
-            highlightNode(startNode);
-            startOutput.lastValue = unwrappedStartValue;
-
-            const startValue = await startFunction(unwrappedStartValue, getArgsValues(startNode));
-
-            highlightNode(startNode, false);
-            highlightNode(endNode);
-            const endResultOriginal = await endFunction(startValue, getArgsValues(endNode));
-            endInput.lastValue = startValue;
-            highlightNode(endNode, false);
-
-            // endNode?.data?.outputs?[0].value = endResultOriginal;
-
-            const endResult = new Promise((resolve, reject) => {
-                try {
-                    resolve(endResultOriginal);
-                } catch (error) {
-                    console.error("Edge execution fails", error, edge);
-                }
+                    return node;
+                });
             });
 
-            //when done with the function pass the data to the endNode outgoing edges
-            const endNodeOutgoingEdges = edges.filter((edge) => edge.source === endNode?.id);
-
-            if (!!endNodeOutgoingEdges.length) {
-                executeEdges(endNodeOutgoingEdges, endResult);
-            } else {
-                console.log("end of flow");
-                setIsStarted(false);
-            }
-        }
-
-        const executeEdges = (edges: Edge[], initialValue: any) => {
-            edges.forEach((startEdge) => executeEdge(startEdge, initialValue));
+            setIsStarted(false);
+            return new Promise((resolve, reject) => resolve(resultValue));
         }
 
         setIsStarted(true);
-        executeEdges(startEdges, "start");
+        startNodes.forEach(executeNode);
     }
 
     return (
