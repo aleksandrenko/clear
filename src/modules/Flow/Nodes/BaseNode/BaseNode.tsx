@@ -3,7 +3,7 @@ import './BaseNode.css';
 
 import {Handle, Position} from 'react-flow-renderer';
 import {BLOCK_ARGUMENT, CLFlowBlockArgumentType, CLFlowBlockOutputsType, CLFlowBlockType} from "../../Blocks/Blocks";
-import {Dropdown, TextField, Toggle} from "@fluentui/react";
+import {Dropdown, TextField, Toggle, Text, ContextualMenu} from "@fluentui/react";
 
 export const BaseNode = memo((props: any) => {
     const data = props.data as CLFlowBlockType;

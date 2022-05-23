@@ -330,28 +330,34 @@ const Delay: CLFlowBlockType = {
 //     ]
 // }
 //
-// const Filter: CLFlowBlockType = {
-//     type: 'Filter',
-//     color: BLOCK_COLORS.magenta,
-//     inputs: [
-//         {
-//             name: 'Input',
-//             id: uuid(),
-//             func: (data) => {
-//                 console.log('onClick func', data);
-//             }
-//         }
-//     ],
-//     outputs: [
-//         {
-//             name: 'Output',
-//             id: uuid(),
-//             func: (data) => {
-//                 console.log('onClick func', data);
-//             }
-//         }
-//     ]
-// }
+const Filter: CLFlowBlockType = {
+    type: 'Filter',
+    color: BLOCK_COLORS.magenta,
+    highlighted: false,
+    showLogs: true,
+    args: {
+        delay: {
+            type: BLOCK_ARGUMENT.string,
+            value: '>'
+        }
+    },
+    func: (data, args) => {
+        console.log('filter not implemented, just passing data', data);
+        return data;
+    },
+    inputs: [
+        {
+            name: 'Input',
+            id: uuid()
+        }
+    ],
+    outputs: [
+        {
+            name: 'Output',
+            id: uuid()
+        }
+    ]
+}
 //
 // const Conditional: CLFlowBlockType = {
 //     type: 'Conditional',
@@ -424,21 +430,30 @@ const Delay: CLFlowBlockType = {
 //     outputs: []
 // }
 //
-// const EventDispatch = {
-//     type: 'Event Dispatch',
-//     color: BLOCK_COLORS.orange,
-//     inputs: [
-//         {
-//             name: 'Data',
-//             id: uuid(),
-//             func: (data: any) => {
-//                 console.log('onClick func', data);
-//             }
-//         }
-//     ],
-//     outputs: []
-// }
-//
+const EventDispatch = {
+    type: 'Event Dispatch',
+    color: BLOCK_COLORS.orange,
+    highlighted: false,
+    showLogs: true,
+    lastValue: undefined,
+    args: {
+        event: {
+            type: BLOCK_ARGUMENT.string,
+            value: ''
+        }
+    },
+    func: (data: any, args: any) => {
+        console.log('onClick func', data);
+    },
+    inputs: [
+        {
+            name: 'Data',
+            id: uuid()
+        }
+    ],
+    outputs: []
+}
+
 
 type BlocksSelector = {
     onSelect: (block: any) => {}
@@ -453,30 +468,29 @@ export const Blocks = ({ onSelect, disabled }: BlocksSelector) => {
             onSelect(selectedBlock);
         },
         items: [
-            // { key: 'inputs_divider', itemType: ContextualMenuItemType.Divider },
-            // { key: 'input', text: 'Inputs (out)', itemType: ContextualMenuItemType.Header },
+            { key: 'input', text: 'Inputs (out)', itemType: ContextualMenuItemType.Header },
             { key: 'event', text: 'Events', block: Event },
             // { key: 'timer', text: 'Timer', block: Timer },
             // { key: 'constant', text: 'Constant', block: Constant },
             // { key: 'state_value', text: 'State Value', block: StateValue },
             //
             { key: 'inputs_others', itemType: ContextualMenuItemType.Divider },
-            // { key: 'other', text: 'Others (in/out)', itemType: ContextualMenuItemType.Header },
+            { key: 'process', text: 'Process (in/out)', itemType: ContextualMenuItemType.Header },
             { key: 'delay', text: 'Delay', block: Delay },
+            // { key: 'other', text: 'Others (in/out)', itemType: ContextualMenuItemType.Header },
 
-            // { key: 'inputs_process', itemType: ContextualMenuItemType.Divider },
-            // { key: 'process', text: 'Process (in/out)', itemType: ContextualMenuItemType.Header },
+
             // { key: 'httpRequest', text: 'HTTPRequest', block: HTTPRequest },
             // { key: 'pluck', text: 'Pluck', block: Pluck },
             // { key: 'transform', text: 'Transform', block: Transform },
             // { key: 'join', text: 'Join', block: Join },
-            // { key: 'filter', text: 'Filter', block: Filter },
+            { key: 'filter', text: 'Filter', block: Filter },
             // { key: 'conditional', text: 'Conditional', block: Conditional },
             //
             // { key: 'inputs_outputs', itemType: ContextualMenuItemType.Divider },
-            // { key: 'output', text: 'Outputs (out)', itemType: ContextualMenuItemType.Header },
+            { key: 'output', text: 'Outputs (in)', itemType: ContextualMenuItemType.Header },
             // { key: 'mutation', text: 'Mutation', block: Mutation },
-            // { key: 'eventDispatch', text: 'Event Dispatch', block: EventDispatch },
+            { key: 'eventDispatch', text: 'Event Dispatch', block: EventDispatch },
         ],
     }));
 
