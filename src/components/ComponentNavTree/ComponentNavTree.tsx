@@ -12,26 +12,48 @@ import {
 import {IButtonProps} from "@fluentui/react/lib/components/Button/Button.types";
 
 import './ComponentNavTree.css';
+import uuid from "../../utils/uuid";
 
-const options: IComboBoxOption[] = [
-    { key: 'h1', text: 'Conainers', itemType: SelectableOptionMenuItemType.Header },
-    { key: 'A', text: 'div' },
-    { key: 'B', text: 'span' },
-    { key: 'C', text: 'section' },
-    { key: 'divider', text: '-', itemType: SelectableOptionMenuItemType.Divider },
-    { key: 'Header2', text: 'Form Elements', itemType: SelectableOptionMenuItemType.Header },
-    { key: 'E', text: 'Text Input' },
-    { key: 'F', text: 'Number Input', disabled: true },
-    { key: 'G', text: 'Dropdown' },
-    { key: 'H', text: 'Button' },
-    { key: 'I', text: 'Checkbox' },
-    { key: 'J', text: 'Radio Button' },
+const COMPONENTS = [{
+    name: 'div',
+    render: (props: any) => <div {...props}>DIV: {props?.children || null}</div>,
+    actions: {},
+    parent: null,
+    _meta: {
+        opened: false,
+        canHaveChildren: true
+    }
+},
+    {
+        name: 'button',
+        render: (props: IButtonProps) => <Button {...props}>{props?.children || null}Button text</Button>,
+        actions: {},
+        parent: null,
+        _meta: {
+            opened: false,
+            canHaveChildren: true
+        }
+    }];
+
+const options: any[] = [
+    // { key: 'h1', text: 'Conainers', itemType: SelectableOptionMenuItemType.Header },
+    // { key: 'A', text: 'div' },
+    // { key: 'B', text: 'span' },
+    // { key: 'C', text: 'section' },
+    // { key: 'divider', text: '-', itemType: SelectableOptionMenuItemType.Divider },
+    // { key: 'Header2', text: 'Form Elements', itemType: SelectableOptionMenuItemType.Header },
+    // { key: 'E', text: 'Text Input' },
+    // { key: 'F', text: 'Number Input', disabled: true },
+    // { key: 'G', text: 'Dropdown' },
+    // { key: 'H', text: 'Button' },
+    // { key: 'I', text: 'Checkbox' },
+    { key: 'key1', text: 'Container - div', component: COMPONENTS[0] },
+    { key: 'key2', text: 'Button', component: COMPONENTS[1] },
 ];
 
 type Props = {
     componentsDefinitions: any[]
 }
-
 
 const ITEMS = [
     {
@@ -102,6 +124,7 @@ const ITEMS = [
 
 export const ComponentNavTree = ({componentsDefinitions}: Props) => {
     const [pageComponents, setPageComponents] = useState(ITEMS);
+    const [selectedNewComponent, setSelectedNewComponent] = useState(null);
     const [componentAddFunction, setComponentAddFunction] = useState<any>(null);
 
     const addChild = (parentComponentDefinition: any) => (libComponent: any) => {
@@ -325,19 +348,34 @@ export const ComponentNavTree = ({componentsDefinitions}: Props) => {
         )
     }
 
-    const renderItems = (items: any[]) => items.map((item, index, all) => renderItem(item, index, pageComponents))
+    const addNewComponent = () => {
+        const newComponent = {
+            ...selectedNewComponent.component,
+            uuid: uuid()
+        }
+
+        setPageComponents((pageComponents) => {
+            return [
+                ...pageComponents,
+                newComponent
+            ]
+        });
+
+        setSelectedNewComponent(() => null);
+    }
+
+    const renderItems = (items: any[]) => items.map((item, index, all) => renderItem(item, index, pageComponents));
 
     return (
         <ul className="cl-components-list--tree">
             {renderItems(rootItems)}
 
             <ComboBox
-                defaultSelectedKey="C"
                 options={options}
-                onSelect={(e) => { console.log(e.target) }}
-
+                onChange={(e, value) => { setSelectedNewComponent(value) }}
+                autoComplete='on'
             />
-            <PrimaryButton>Add</PrimaryButton>
+            <PrimaryButton disabled={!selectedNewComponent} onClick={() => { addNewComponent() }}>Add</PrimaryButton>
         </ul>
     )
 }
