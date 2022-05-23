@@ -11,10 +11,13 @@ import {
     Pivot,
     PivotItem,
     SearchBox,
-    Stack, TextField, Toggle, Text
+    Stack
 } from "@fluentui/react"
 import {IButtonProps} from "@fluentui/react/lib/components/Button/Button.types";
 import ComponentProperties from "./components/ComponentProperties";
+import {Flow} from "../../modules/Flow/Flow";
+import uuid from "../../utils/uuid";
+import {ComponentNavTree} from "../../components/ComponentNavTree/ComponentNavTree";
 
 initializeIcons();
 
@@ -54,8 +57,9 @@ const LIBRARIES = [
         components: [
             {
                 name: 'Button',
-                render: (props: IButtonProps) => <Button {...props}>{ props?.children || null }</Button>,
-                props: {},
+                render: (props: IButtonProps) => <Button {...props}>{ props?.children || null }Button text</Button>,
+                props: {
+                },
                 descriptions: '',
                 childrenRestrictions: {},
                 actions: {},
@@ -73,6 +77,16 @@ const PAGE_COMPONENTS = [
         actions: {},
         children: [
             {
+                uuid: uuid(),
+                name: 'Button',
+                component: 'Button',
+                props: {},
+                descriptions: '',
+                childrenRestrictions: {},
+                actions: {},
+                children: []
+            },
+            {
                 uuid: '432t2g',
                 name: 'Container_2',
                 component: 'span',
@@ -87,7 +101,6 @@ const PAGE_COMPONENTS = [
 const Page = () => {
     let params = useParams();
     const [componentAddFunction, setComponentAddFunction] = useState<any>(null);
-    const [pageComponents, setPageComponents] = useState(PAGE_COMPONENTS);
 
     const renderPage = (componentsDefinition: any[]) => {
         const renderComponents = (componentsDefinition: any[]): any[] => {
@@ -118,152 +131,6 @@ const Page = () => {
         return Page;
     }
 
-    const addChild = (parentComponentDefinition: any) => (libComponent: any) => {
-        const modifyTreeBranch = (components: any) => {
-            return components.map((component: any) => {
-                if (component.children.length) {
-                    modifyTreeBranch(component.children);
-                }
-
-                if (component.uuid === parentComponentDefinition.uuid) {
-                    const newPageComponent = {
-                        uuid: Date.now().toString(),
-                        name: Date.now().toString(),
-                        component: libComponent.name,
-                        props: {},
-                        actions: {},
-                        children: []
-                    }
-
-                    component.children.push(newPageComponent);
-                }
-
-                return component;
-            });
-        };
-
-        setPageComponents(modifyTreeBranch(pageComponents));
-    }
-
-    const addElementBefore = (parentComponentDefinition: any) => (libComponent: any) => {
-        const modifyTreeBranch = (components: any) => {
-            return components.reduce((sum: any[], component: any) => {
-              if (component.uuid === parentComponentDefinition.uuid) {
-                    const newPageComponent = {
-                        uuid: Date.now().toString(),
-                        name: Date.now().toString(),
-                        component: libComponent.name,
-                        props: {},
-                        actions: {},
-                        children: []
-                    }
-
-                    // Add the new element before adding the already existing one.
-                    sum.push(newPageComponent);
-                }
-                sum.push(component);
-
-                console.log(component, parentComponentDefinition.uuid);
-
-                if (component.children.length) {
-                    component.children = modifyTreeBranch(component.children);
-                }
-
-                return sum;
-            }, []);
-        };
-
-        setPageComponents(modifyTreeBranch(pageComponents));
-    }
-
-    //TODO: this is pretty much the same like addBefore. Think af a good way to combine them
-    const addElementAfter = (parentComponentDefinition: any) => (libComponent: any) => {
-        const modifyTreeBranch = (components: any) => {
-            return components.reduce((sum: any[], component: any) => {
-                sum.push(component);
-
-                if (component.uuid === parentComponentDefinition.uuid) {
-                    const newPageComponent = {
-                        uuid: Date.now().toString(),
-                        name: Date.now().toString(),
-                        component: libComponent.name,
-                        props: {},
-                        actions: {},
-                        children: []
-                    }
-
-                    // Add the new element after adding the already existing one.
-                    sum.push(newPageComponent);
-                }
-
-                console.log(component, parentComponentDefinition.uuid);
-
-                if (component.children.length) {
-                    component.children = modifyTreeBranch(component.children);
-                }
-
-                return sum;
-            }, []);
-        };
-
-        setPageComponents(modifyTreeBranch(pageComponents));
-    }
-
-    const deleteComponent = (componentDefinition: any) => {
-        const modifyTreeBranch = (components: any) => {
-            return components.reduce((sum: any[], component: any) => {
-               if (component.uuid !== componentDefinition.uuid) {
-                   if (component.children.length) {
-                       component.children = modifyTreeBranch(component.children);
-                   }
-
-                   sum.push(component);
-               }
-
-                return sum;
-            }, []);
-        };
-
-        setPageComponents(modifyTreeBranch(pageComponents));
-    }
-
-    const renderComponentsTreeNav = (componentsDefinitions: any[]): any => {
-        return componentsDefinitions.map((componentDefinition) => {
-
-            return (
-                <div className="nav-element">
-                    <button onClick={() => { setComponentAddFunction((prev: any) => addElementBefore(componentDefinition)); }}>
-                        +
-                    </button>
-
-                    {componentDefinition.name} ({componentDefinition.component})
-                    <button onClick={() => deleteComponent(componentDefinition)} >
-                        -
-                    </button>
-
-                    <button onClick={() => { setComponentAddFunction((prev: any) => addElementAfter(componentDefinition)); }}>
-                        +
-                    </button>
-
-                    <div className="nav-element--children">
-                        { componentDefinition.children.length
-                            ? renderComponentsTreeNav(componentDefinition.children)
-                            : (
-                                <>
-                                    -
-                                    <button onClick={() => {
-                                        setComponentAddFunction((prev: any) => addChild(componentDefinition)); }}
-                                    >
-                                        + child
-                                    </button></>
-                            )
-                        }
-                    </div>
-                </div>
-            );
-        })
-    };
-
     return (
     <div className="page">
         <div className="page-tools">
@@ -279,7 +146,7 @@ const Page = () => {
                         </Stack.Item>
 
                         <Stack.Item>
-                            { renderComponentsTreeNav(pageComponents) }
+                            <ComponentNavTree componentsDefinitions={PAGE_COMPONENTS} />
                         </Stack.Item>
                     </Stack>
                 </PivotItem>
@@ -306,19 +173,18 @@ const Page = () => {
 
             <div className="page-preview--page-space">
                 <div className="page-preview--page">
-                    { renderPage(pageComponents) }
+                    { renderPage(PAGE_COMPONENTS) }
                 </div>
             </div>
         </div>
 
-        <div className="page-properties">
-            <ComponentProperties />
-        </div>
+        {/*<div className="page-properties">*/}
+        {/*    <ComponentProperties />*/}
+        {/*</div>*/}
 
-        <div className="page-actions">
-            Actions module goes here
-            To define the user interactions with the ui
-        </div>
+        {/*<div className="page-actions">*/}
+        {/*    <Flow />*/}
+        {/*</div>*/}
 
         <LibComponentsSelectModal
             libComponents={LIBRARIES}

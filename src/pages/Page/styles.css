@@ -35,8 +35,7 @@ body {
 
 .page-tools {
     grid-area: tools;
-    width: 300px;
-
+    width: 600px;
     background-color: #fafafa;
 }
 
@@ -80,12 +79,12 @@ body {
 }
 
 .page-actions {
+    position: relative;
     grid-area: actions;
-    background: #333;
     height: 250px;
     color: #eee;
+    resize: vertical;
 }
-
 
 .nav-element {
     padding: 3px 5px;

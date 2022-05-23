@@ -24,8 +24,8 @@ function Router() {
   return (
       <BrowserRouter basename="/">
         <Routes>
-          <Route path={ROUTES.HOME} element={<Flow />} />
-          {/*<Route path={ROUTES.HOME} element={<Home />} />*/}
+          {/*<Route path={ROUTES.HOME} element={<Flow />} />*/}
+          <Route path={ROUTES.HOME} element={<Home />} />
           <Route path={ROUTES.APPS}>
             <Route path="" element={<Apps />} />
 

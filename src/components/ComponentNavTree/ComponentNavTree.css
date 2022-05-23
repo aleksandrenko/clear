@@ -1,0 +1,30 @@
+.cl-components-list--tree,
+.cl-components-list--tree li {
+    list-style: none;
+    padding: 0;
+}
+
+.cl-components-list--tree .ms-Button {
+    transition: background-color 0.25s;
+    height: 32px;
+}
+
+.cl-components-list--tree .ms-Button:hover {
+    background-color: #f3f3f3;
+}
+
+.cl-components-list--tree--item {
+    display: flex;
+}
+
+.cl-components-list--tree--item-name {
+    flex: 1;
+}
+
+.cl-components-list--tree--item-uuid {
+    color: #bbb;
+}
+
+.cl-components-list--tree--sub-items {
+    padding-left: 18px;
+}
